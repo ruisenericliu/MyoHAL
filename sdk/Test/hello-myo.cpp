@@ -309,9 +309,23 @@ int main(int argc, char** argv)
     // Hub::run() to send events to all registered device listeners.
     hub.addListener(&collector);
 
-
     float dt = 1.0/20;
     float hub_t = 1000*dt;
+
+    // Enables EMG streaming on the found Myo
+    myo->setStreamEmg(myo::Myo::streamEmgEnabled);
+
+    emgOutFile.open(EMGFile);
+    int i = 0;
+    while (i < 100) {
+      i++;
+      hub.run(hub_t); // update 20 times a second
+       collector.writeEmgData();
+    }
+    emgOutFile.close();
+
+
+    
 
     // test calibration
     /*
@@ -349,19 +363,6 @@ int main(int argc, char** argv)
     */
 
     
-    // Enables EMG streaming on the found Myo
-    myo->setStreamEmg(myo::Myo::streamEmgEnabled);
-
-    emgOutFile.open(EMGFile);
-    int i = 0;
-    while (i < 100) {
-      i++;
-      hub.run(hub_t); // update 20 times a second
-       collector.writeEmgData();
-    }
-    emgOutFile.close();
-
-
     /*
     i = 0;
      while (i < 10) {
