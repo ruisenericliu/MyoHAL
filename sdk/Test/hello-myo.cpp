@@ -20,6 +20,7 @@
 #include <myo/myo.hpp>
 
 const double GRAVITY = 9.80665;
+int counter = 0;
 
 std::ofstream accelOutFile;
 std::ofstream emgOutFile;
@@ -63,11 +64,18 @@ public:
     
   }
 
+
+  // Allegedly, frequency of IMU data is 50 Hz,
+  // frequency of EMG data is 200 Hz.
+  
   // onEmgData() is called whenever a paired Myo has provided new EMG data, and EMG streaming is enabled.
   void onEmgData(myo::Myo* myo, uint64_t timestamp, const int8_t* emg) {
     for (int i = 0; i < 8; i++) {
 		  emgData[i] = emg[i];
     }
+    writeEmgData();
+    counter++;
+
   }
 
   
@@ -309,21 +317,32 @@ int main(int argc, char** argv)
     // Hub::run() to send events to all registered device listeners.
     hub.addListener(&collector);
 
-    float dt = 1.0/20;
-    float hub_t = 1000*dt;
+    float dt = 1.0/50; // update 50 times a second
+    float hub_t = 1000*dt; // convert to milliseconds
 
     // Enables EMG streaming on the found Myo
     myo->setStreamEmg(myo::Myo::streamEmgEnabled);
 
+
+    std::cout << "Collecting EMG Data!" << std::endl;
+    
     emgOutFile.open(EMGFile);
+
+    // hub.run(5000); // run for 5 seconds?
+    
     int i = 0;
-    while (i < 100) {
+    while (i < 3000) {
+      hub.run(hub_t);
+      // collector.writeEmgData();
       i++;
-      hub.run(hub_t); // update 20 times a second
-       collector.writeEmgData();
     }
+   
+    
     emgOutFile.close();
 
+    std::cout << counter << std::endl;
+
+    std::cout << "Finished!" << std::endl;
 
     
 
