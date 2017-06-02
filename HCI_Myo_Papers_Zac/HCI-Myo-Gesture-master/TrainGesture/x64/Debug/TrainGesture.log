@@ -1,0 +1,18 @@
+﻿  TrainGesture.cpp
+\\mac\home\documents\visual studio 2015\projects\myocustomgesture\include\myo\cxx\detail\throwonerror.hpp(39): warning C4297: 'myo::ThrowOnError::~ThrowOnError': function assumed not to throw an exception but does
+  \\mac\home\documents\visual studio 2015\projects\myocustomgesture\include\myo\cxx\detail\throwonerror.hpp(39): note: destructor or deallocator has a (possibly implicit) non-throwing exception specification
+\\mac\home\documents\visual studio 2015\projects\myocustomgesture\include\myo\cxx\detail\throwonerror.hpp(45): warning C4297: 'myo::ThrowOnError::~ThrowOnError': function assumed not to throw an exception but does
+  \\mac\home\documents\visual studio 2015\projects\myocustomgesture\include\myo\cxx\detail\throwonerror.hpp(45): note: destructor or deallocator has a (possibly implicit) non-throwing exception specification
+\\mac\home\documents\visual studio 2015\projects\myocustomgesture\grt\util\grttypedefs.h(76): warning C4003: not enough actual parameters for macro 'min'
+\\mac\home\documents\visual studio 2015\projects\myocustomgesture\grt\util\grttypedefs.h(77): warning C4003: not enough actual parameters for macro 'max'
+\\mac\home\documents\visual studio 2015\projects\myocustomgesture\traingesture\traingesture.cpp(85): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+\\mac\home\documents\visual studio 2015\projects\myocustomgesture\traingesture\traingesture.cpp(90): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+\\mac\home\documents\visual studio 2015\projects\myocustomgesture\traingesture\traingesture.cpp(95): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+\\mac\home\documents\visual studio 2015\projects\myocustomgesture\traingesture\traingesture.cpp(475): warning C4305: 'initializing': truncation from 'double' to 'float'
+\\mac\home\documents\visual studio 2015\projects\myocustomgesture\traingesture\traingesture.cpp(492): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+\\mac\home\documents\visual studio 2015\projects\myocustomgesture\traingesture\traingesture.cpp(507): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+\\mac\home\documents\visual studio 2015\projects\myocustomgesture\traingesture\traingesture.cpp(520): warning C4018: '<': signed/unsigned mismatch
+  TrainGesture.vcxproj -> \\Mac\Home\Documents\Visual Studio 2015\Projects\MyoCustomGesture\x64\Debug\TrainGesture.exe
+  TrainGesture.vcxproj -> \\Mac\Home\Documents\Visual Studio 2015\Projects\MyoCustomGesture\x64\Debug\TrainGesture.pdb (Partial PDB)
+          1 file(s) copied.
+          1 file(s) copied.
