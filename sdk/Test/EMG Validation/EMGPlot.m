@@ -1,6 +1,6 @@
 % EMG Data 
 
-base = csvread('06021/Fist.csv');
+base = csvread('06021/HoldStill.csv');
 
 nval = size(base,1);
 mval = size(base,2);
