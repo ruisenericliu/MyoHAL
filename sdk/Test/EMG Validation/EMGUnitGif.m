@@ -68,7 +68,7 @@ for i=1:m
     time = i/freq; % convert from hz to time increment
     
     title(strcat(name,' - EMG Values'));
-    legend(strcat('Time: ',num2str(time),' s'));
+    legend(['Time: ', sprintf('%.3f',time), ' s']);
     
     drawnow;
     

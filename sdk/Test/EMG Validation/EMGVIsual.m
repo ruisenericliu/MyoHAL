@@ -1,6 +1,6 @@
 % Test filtering 
 
-str = 'DoubleTap';
+str = 'SpreadFingers';
 base = csvread(strcat('06021/',str,'.csv'));
 
 length = size(base,1);
@@ -115,4 +115,4 @@ xlabel('time (s)');
 
 
 %% Creating a gif of the rectified/filtered signal
-%EMGUnitGif(filt_signal,6, 20, Fs,str);
+EMGUnitGif(filt_signal,6, 20, Fs,str);
