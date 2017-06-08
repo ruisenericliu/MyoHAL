@@ -3,6 +3,9 @@
 str = 'SpreadFingers';
 base = csvread(strcat('06021/',str,'.csv'));
 
+str = 'Multi-task';
+base = csvread('EMG_RawAccel/emg1.csv');
+
 length = size(base,1);
 num_signals = size(base,2);
 
@@ -47,7 +50,7 @@ end
 %% Plotting
 
 y_max=127;
-T = 5;
+T = round(length/Fs);
 
 %% Singular EMG example plot
 
@@ -101,18 +104,18 @@ xlabel('time (s)');
 
 
 %% Full Dataset Filtered plots
-% for i=1:num_signals
-% 
-% figure(4+i);
-% x=linspace(0,T,length);
-% plot(x,filt_signal(:,i));
-% axis([0,T,0,y_max]);
-% title(['Filtered EMG Signal # ', num2str(i),' for ', str]);
-% ylabel('Unsigned 8 bit int');
-% xlabel('time (s)');
-% 
-% end
+for i=1:num_signals
+
+figure(4+i);
+x=linspace(0,T,length);
+plot(x,filt_signal(:,i));
+axis([0,T,0,y_max]);
+title(['Filtered EMG Signal # ', num2str(i),' for ', str]);
+ylabel('Unsigned 8 bit int');
+xlabel('time (s)');
+
+end
 
 
 %% Creating a gif of the rectified/filtered signal
-EMGUnitGif(filt_signal,6, 20, Fs,str);
+%EMGUnitGif(filt_signal,6, 20, Fs,str);

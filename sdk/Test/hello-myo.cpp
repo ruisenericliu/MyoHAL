@@ -74,7 +74,6 @@ public:
 		  emgData[i] = emg[i];
     }
     writeEmgData();
-    counter++;
 
   }
 
@@ -127,13 +126,16 @@ public:
 
   void onAccelerometerData(myo::Myo *myo, uint64_t timestamp, const myo::Vector3< float > &accel) {
     rawAccel = accel; // in units of gravity
+
+    accelOutFile << GRAVITY*rawAccel.x() << "," << GRAVITY*rawAccel.y() << "," << GRAVITY*rawAccel.z() << std::endl;
+
+    counter++;
+
     
     // adjust to m/s^2
     Accel =  myo::Vector3<float>(GRAVITY*rawAccel.x(),GRAVITY*rawAccel.y(), GRAVITY*rawAccel.z() );
 
     Accel = myo::rotate(orientation, Accel); // adjust to orientation
-
-
     // drop effect of gravity
     Accel =  myo::Vector3<float>(Accel.x(),Accel.y(), Accel.z() - GRAVITY); 
     
@@ -317,28 +319,37 @@ int main(int argc, char** argv)
     // Hub::run() to send events to all registered device listeners.
     hub.addListener(&collector);
 
-    float dt = 1.0/50; // update 50 times a second
-    float hub_t = 1000*dt; // convert to milliseconds
 
     // Enables EMG streaming on the found Myo
     myo->setStreamEmg(myo::Myo::streamEmgEnabled);
 
 
-    std::cout << "Collecting EMG Data!" << std::endl;
+    std::cout << "Collecting EMG and Acceleration Data!" << std::endl;
     
     emgOutFile.open(EMGFile);
+    accelOutFile.open(accelFile);
 
-    // hub.run(5000); // run for 5 seconds?
-    
+    int seconds = 210;
+    hub.run(seconds*1000); // run for n milliseconds - this timing is accurate
+    // for some reason, for short windows, EMG data is undersampled, but not IMU data is not
+
+    // The following method accumulatees delay for long periods of run time
+    // something to keep in mind for the future
+    // for example, expected: 60 seconds, result: 62.4 seconds 
+    /*
+    float dt = 1.0/50; // update 50 times a second
+    float hub_t = 1000*dt; // convert to milliseconds
     int i = 0;
-    while (i < 3000) {
+    while (i < 3000) {  //look at dt for update rate
       hub.run(hub_t);
-      // collector.writeEmgData();
       i++;
     }
+    */
+    
    
     
     emgOutFile.close();
+    accelOutFile.close();
 
     std::cout << counter << std::endl;
 
