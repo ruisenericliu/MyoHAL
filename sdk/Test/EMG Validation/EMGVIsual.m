@@ -4,7 +4,7 @@ str = 'SpreadFingers';
 base = csvread(strcat('06021/',str,'.csv'));
 
 str = 'Multi-task';
-base = csvread('EMG_RawAccel/emg1.csv');
+base = csvread('06091/emg1.csv');
 
 length = size(base,1);
 num_signals = size(base,2);
