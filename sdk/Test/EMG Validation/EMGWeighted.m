@@ -2,7 +2,7 @@
 str_emg = 'MultiTaskEmg';
 base_emg = csvread(strcat('06091/',str_emg,'.csv'));
 
-str_emg = 'Fist';
+str_emg = 'DoubleTap';
 base_emg = csvread(strcat('06021/',str_emg,'.csv'));
 
 

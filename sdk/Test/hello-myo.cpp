@@ -329,7 +329,7 @@ int main(int argc, char** argv)
     emgOutFile.open(EMGFile);
     accelOutFile.open(accelFile);
 
-    int seconds = 5;
+    int seconds = 60;
     hub.run(seconds*1000); // run for n milliseconds - this timing is accurate
     // for some reason, for short windows, EMG data is undersampled, but not IMU data is not
 
