@@ -2,8 +2,8 @@
 str_acc = 'MultiTaskAcc';
 base_acc = csvread(strcat('06091/',str_acc,'.csv'));
 
-str_acc = 'Table2mAcc';
-base_acc = csvread(strcat('06141/',str_acc,'.csv'));
+%str_acc = 'accelTreadMill';
+%base_acc = csvread(strcat('06161/',str_acc,'.csv'));
 
 
 %% Filter Acceleration Signals 
