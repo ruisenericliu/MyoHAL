@@ -345,8 +345,7 @@ int main(int argc, char** argv)
       i++;
     }
     */
-    
-   
+       
     
     emgOutFile.close();
     accelOutFile.close();

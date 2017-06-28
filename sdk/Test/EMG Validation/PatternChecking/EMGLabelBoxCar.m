@@ -13,6 +13,7 @@ wn_e=10/(Fse/2);
 [b_e,a_e]=butter(order_e, wn_e, 'low');
 
 % Create an end matrix;
+n = 40; % number of samples to boxcar average (5 Hz) 
 result = [];
 
 
@@ -39,9 +40,25 @@ for i =1:length_emg
     filt_emg_signal(i,9) = 1; % all of it is exertion
 end
 
+% Boxcar average the data by n samples 
+
+length_b = floor(length_emg/n);  
+avg_filt_emg = zeros(length_b, num_emg_signals + 1);
+
+% average EMG signals, round exertion
+for i=1:length_b
+    
+   % average EMG signals  
+   for j=1:num_emg_signals
+      avg_filt_emg(i,j) = mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,j));
+   end
+   % round exertion
+   avg_filt_emg(i,9) = round(mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,9)));
+    
+end
 
 % Concat with base matrix; 
-result = [result; filt_emg_signal];
+result = [result; avg_filt_emg];
 
 %% Process 1 data file 
 str_emg = 'Curl15lb';
@@ -66,9 +83,25 @@ for i =1:length_emg
     filt_emg_signal(i,9) = 1; % all of it is exertion
 end
 
+% Boxcar average the data by n samples 
+
+length_b = floor(length_emg/n);  
+avg_filt_emg = zeros(length_b, num_emg_signals + 1);
+
+% average EMG signals, round exertion
+for i=1:length_b
+    
+   % average EMG signals  
+   for j=1:num_emg_signals
+      avg_filt_emg(i,j) = mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,j));
+   end
+   % round exertion
+   avg_filt_emg(i,9) = round(mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,9)));
+    
+end
 
 % Concat with base matrix; 
-result = [result; filt_emg_signal];
+result = [result; avg_filt_emg];
 
 
 %% Process 1 data file 
@@ -96,8 +129,26 @@ end
 % end
 
 
+% Boxcar average the data by n samples 
+
+length_b = floor(length_emg/n);  
+avg_filt_emg = zeros(length_b, num_emg_signals + 1);
+
+% average EMG signals, round exertion
+for i=1:length_b
+    
+   % average EMG signals  
+   for j=1:num_emg_signals
+      avg_filt_emg(i,j) = mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,j));
+   end
+   % round exertion
+   avg_filt_emg(i,9) = round(mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,9)));
+    
+end
+
 % Concat with base matrix; 
-result = [result; filt_emg_signal];
+result = [result; avg_filt_emg];
+
 
 %% Process 1 data file 
 str_emg = 'Pinch60s';
@@ -123,9 +174,26 @@ end
 %     
 % end
 
+% Boxcar average the data by n samples 
+
+length_b = floor(length_emg/n);  
+avg_filt_emg = zeros(length_b, num_emg_signals + 1);
+
+% average EMG signals, round exertion
+for i=1:length_b
+    
+   % average EMG signals  
+   for j=1:num_emg_signals
+      avg_filt_emg(i,j) = mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,j));
+   end
+   % round exertion
+   avg_filt_emg(i,9) = round(mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,9)));
+    
+end
 
 % Concat with base matrix; 
-result = [result; filt_emg_signal];
+result = [result; avg_filt_emg];
+
 
 
 %% Process 1 data file 
@@ -152,9 +220,25 @@ end
 %     
 % end
 
+% Boxcar average the data by n samples 
+
+length_b = floor(length_emg/n);  
+avg_filt_emg = zeros(length_b, num_emg_signals + 1);
+
+% average EMG signals, round exertion
+for i=1:length_b
+    
+   % average EMG signals  
+   for j=1:num_emg_signals
+      avg_filt_emg(i,j) = mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,j));
+   end
+   % round exertion
+   avg_filt_emg(i,9) = round(mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,9)));
+    
+end
 
 % Concat with base matrix; 
-result = [result; filt_emg_signal];
+result = [result; avg_filt_emg];
 
 
 %% Process 1 data file 
@@ -181,9 +265,26 @@ end
 %     
 % end
 
+% Boxcar average the data by n samples 
+
+length_b = floor(length_emg/n);  
+avg_filt_emg = zeros(length_b, num_emg_signals + 1);
+
+% average EMG signals, round exertion
+for i=1:length_b
+    
+   % average EMG signals  
+   for j=1:num_emg_signals
+      avg_filt_emg(i,j) = mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,j));
+   end
+   % round exertion
+   avg_filt_emg(i,9) = round(mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,9)));
+    
+end
 
 % Concat with base matrix; 
-result = [result; filt_emg_signal];
+result = [result; avg_filt_emg];
+
 
 %% Process 1 data file 
 str_emg = 'SpreadFingers60s';
@@ -209,9 +310,26 @@ end
 %     
 % end
 
+% Boxcar average the data by n samples 
+
+length_b = floor(length_emg/n);  
+avg_filt_emg = zeros(length_b, num_emg_signals + 1);
+
+% average EMG signals, round exertion
+for i=1:length_b
+    
+   % average EMG signals  
+   for j=1:num_emg_signals
+      avg_filt_emg(i,j) = mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,j));
+   end
+   % round exertion
+   avg_filt_emg(i,9) = round(mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,9)));
+    
+end
 
 % Concat with base matrix; 
-result = [result; filt_emg_signal];
+result = [result; avg_filt_emg];
+
 
 %% Process 1 data file 
 str_emg = 'Grasp15lb';
@@ -239,10 +357,33 @@ for i =1:length_emg
    end
 end
 
-csvwrite('plotset.csv', filt_emg_signal);
+
+% Boxcar average the data by n samples 
+
+length_b = floor(length_emg/n);  
+avg_filt_emg = zeros(length_b, num_emg_signals + 1);
+
+% average EMG signals, round exertion
+for i=1:length_b
+    
+   % average EMG signals  
+   for j=1:num_emg_signals
+      avg_filt_emg(i,j) = mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,j));
+   end
+   % round exertion
+   avg_filt_emg(i,9) = round(mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,9)));
+    
+end
+
+
+csvwrite('plotset.csv', avg_filt_emg);
 
 % Concat with base matrix; 
-result = [result; filt_emg_signal];
+result = [result; avg_filt_emg];
+
+
+
+
 
 %% Process 1 data file 
 str_emg = 'Grasp25lb';
@@ -270,9 +411,26 @@ for i =1:length_emg
    end
 end
 
+% Boxcar average the data by n samples 
+
+length_b = floor(length_emg/n);  
+avg_filt_emg = zeros(length_b, num_emg_signals + 1);
+
+% average EMG signals, round exertion
+for i=1:length_b
+    
+   % average EMG signals  
+   for j=1:num_emg_signals
+      avg_filt_emg(i,j) = mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,j));
+   end
+   % round exertion
+   avg_filt_emg(i,9) = round(mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,9)));
+    
+end
 
 % Concat with base matrix; 
-result = [result; filt_emg_signal];
+result = [result; avg_filt_emg];
+
 
 
 %% Process 1 data file 
@@ -301,10 +459,25 @@ for i =1:length_emg
    end
 end
 
+% Boxcar average the data by n samples 
+
+length_b = floor(length_emg/n);  
+avg_filt_emg = zeros(length_b, num_emg_signals + 1);
+
+% average EMG signals, round exertion
+for i=1:length_b
+    
+   % average EMG signals  
+   for j=1:num_emg_signals
+      avg_filt_emg(i,j) = mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,j));
+   end
+   % round exertion
+   avg_filt_emg(i,9) = round(mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,9)));
+    
+end
 
 % Concat with base matrix; 
-result = [result; filt_emg_signal];
-
+result = [result; avg_filt_emg];
 
 %% Process 1 data file 
 str_emg = 'Push25lb';
@@ -332,10 +505,25 @@ for i =1:length_emg
    end
 end
 
+% Boxcar average the data by n samples 
+
+length_b = floor(length_emg/n);  
+avg_filt_emg = zeros(length_b, num_emg_signals + 1);
+
+% average EMG signals, round exertion
+for i=1:length_b
+    
+   % average EMG signals  
+   for j=1:num_emg_signals
+      avg_filt_emg(i,j) = mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,j));
+   end
+   % round exertion
+   avg_filt_emg(i,9) = round(mean(filt_emg_signal(n*(i-1)+1:n*(i-1)+n,9)));
+    
+end
 
 % Concat with base matrix; 
-result = [result; filt_emg_signal];
-
+result = [result; avg_filt_emg];
 
 
 

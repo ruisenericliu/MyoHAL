@@ -17,7 +17,7 @@ Fsa = 50;
 % Chebyshev Type 1 High pass filter 
 order_a=2;
 Rp=3; % 3 dB
-wn_a=0.5/(Fsa/2); % 0.5 Hz 
+wn_a=5/(Fsa/2); % 0.5 Hz 
 [b_a,a_a]=cheby1(order_a,Rp, wn_a, 'high');
 
 filt_acc_signal = zeros(length_acc, num_acc_signals);
@@ -50,24 +50,22 @@ for i=1:length_acc
     RMS(i)=sqrt(1/num_acc_signals*temp_sum);
 end
 
-%% Plotting
+%% Examining Frequency domain of a single Acc signal
 
-% Examining Frequency domain of a single Acc signal
-
-% plot in frequency domain 
-signal = base_acc(:,3);
-
-% get the closest power of 2 
-nfft2 = 2.^nextpow2(length_acc);
-fy = fft(signal,nfft2); % convert to frequency domain
-fy = fy(1:nfft2/2);  % LHS of frequency signal 
-xfft = Fsa.*(0:nfft2/2 - 1)/nfft2;  % scale time to frequency domain
-
-figure(1)
-plot(xfft, abs(fy)/max(fy)); % normalized
-title(['Single  Signal for ', str_acc, ' in Frequency Domain']);
-ylabel('Normalized Magnitude');
-xlabel('Frequency (Hz)');
+% % plot in frequency domain 
+% signal = base_acc(:,3);
+% 
+% % get the closest power of 2 
+% nfft2 = 2.^nextpow2(length_acc);
+% fy = fft(signal,nfft2); % convert to frequency domain
+% fy = fy(1:nfft2/2);  % LHS of frequency signal 
+% xfft = Fsa.*(0:nfft2/2 - 1)/nfft2;  % scale time to frequency domain
+% 
+% figure(1)
+% plot(xfft, abs(fy)/max(fy)); % normalized
+% title(['Single  Signal for ', str_acc, ' in Frequency Domain']);
+% ylabel('Normalized Magnitude');
+% xlabel('Frequency (Hz)');
 
 
 %% Plot Acceleration Data 
