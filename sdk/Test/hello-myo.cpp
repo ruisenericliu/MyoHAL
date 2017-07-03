@@ -26,10 +26,14 @@ std::ofstream accelOutFile;
 std::ofstream emgOutFile;
 std::ofstream quatOutFile;
 std::ofstream rollOutFile;
+std::ofstream rotAccelOutFile;
+std::ofstream gyroOutFile;
 std::string accelFile  = "accel.csv";
 std::string EMGFile = "emg.csv";
 std::string quatFile = "quat.csv";
 std::string rollFile = "roll.csv";
+std::string rotAccelFile = "worldAccel.csv";
+std::string gyroFile = "gyro.csv";
 
 // Classes that inherit from myo::DeviceListener can be used to receive events from Myo devices. DeviceListener
 // provides several virtual functions for handling different kinds of events. If you do not override an event, the
@@ -84,6 +88,7 @@ public:
       std::to_string(emgData[6]) << "," << std::to_string(emgData[7]) << std::endl;
   }
 
+  // test function to see if we can calibrate orientation in world view 
   void calibrate(){
     myo::Quaternion<float> desiredQuat = myo::Quaternion<float>(0.0, 0.7071, 0.0, 0.7071); // x, y, z, w, for some odd reason
 
@@ -136,10 +141,21 @@ public:
     Accel =  myo::Vector3<float>(GRAVITY*rawAccel.x(),GRAVITY*rawAccel.y(), GRAVITY*rawAccel.z() );
 
     Accel = myo::rotate(orientation, Accel); // adjust to orientation
+
+    rotAccelOutFile << Accel.x() << "," << Accel.y() << "," << Accel.z() << std::endl;
+    
     // drop effect of gravity
     Accel =  myo::Vector3<float>(Accel.x(),Accel.y(), Accel.z() - GRAVITY); 
+
     
   }
+
+  void onGyroscopeData(myo::Myo *myo, uint64_t timestamp, const myo::Vector3< float > &gyro){
+    myGyro = gyro; 
+    gyroOutFile << myGyro.x() << "," << myGyro.y() << "," << myGyro.z() << std::endl;
+  }
+	
+  
 
     // onOrientationData() is called whenever the Myo device provides its current orientation, which is represented
     // as a unit quaternion.
@@ -152,6 +168,8 @@ public:
         using std::min;
 
 	orientation = quat;
+
+	quatOutFile << orientation.w() << "," << orientation.x() << "," << orientation.y() << "," << orientation.z() << std::endl;
 
 	// if we have calibrated, we can adjust by the relative quaternion
 	
@@ -276,8 +294,8 @@ public:
   //data from Armband
   myo::Vector3<float> rawAccel;
   myo::Vector3<float> Accel;
+  myo::Vector3<float> myGyro;
   myo::Quaternion<float> orientation;
-
   // adjustment quaternion
   myo::Quaternion<float> relQuat;
   bool calibrated;
@@ -328,6 +346,10 @@ int main(int argc, char** argv)
     
     emgOutFile.open(EMGFile);
     accelOutFile.open(accelFile);
+    rotAccelOutFile.open(rotAccelFile);
+    gyroOutFile.open(gyroFile);
+    quatOutFile.open(quatFile);
+
 
     int seconds = 60;
     hub.run(seconds*1000); // run for n milliseconds - this timing is accurate
@@ -349,6 +371,10 @@ int main(int argc, char** argv)
     
     emgOutFile.close();
     accelOutFile.close();
+    rotAccelOutFile.close();
+    gyroOutFile.close();
+    quatOutFile.close();
+
 
     std::cout << counter << std::endl;
 

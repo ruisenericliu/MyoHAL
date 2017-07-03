@@ -117,20 +117,20 @@ csvwrite('06271/filtEMGOguz.csv', filt_emg_signal);
 
 %% Examining Frequency domain of a single Acc signal
 % 
-% % plot in frequency domain 
-% signal = base_acc(:,3);
-% 
-% % get the closest power of 2 
-% nfft2 = 2.^nextpow2(length_acc);
-% fy = fft(signal,nfft2); % convert to frequency domain
-% fy = fy(1:nfft2/2);  % LHS of frequency signal 
-% xfft = Fsa.*(0:nfft2/2 - 1)/nfft2;  % scale time to frequency domain
-% 
-% figure(3);
-% plot(xfft, abs(fy)/max(fy)); % normalized
-% title(['Single  Signal for ', str_acc, ' in Frequency Domain']);
-% ylabel('Normalized Magnitude');
-% xlabel('Frequency (Hz)');
+% plot in frequency domain 
+signal = base_acc(:,3);
+
+% get the closest power of 2 
+nfft2 = 2.^nextpow2(length_acc);
+fy = fft(signal,nfft2); % convert to frequency domain
+fy = fy(1:nfft2/2);  % LHS of frequency signal 
+xfft = Fsa.*(0:nfft2/2 - 1)/nfft2;  % scale time to frequency domain
+
+figure(3);
+plot(xfft, abs(fy)/max(fy)); % normalized
+title(['Single  Signal for ', str_acc, ' in Frequency Domain']);
+ylabel('Normalized Magnitude');
+xlabel('Frequency (Hz)');
 
 
 %% Filter Acceleration Data 
@@ -143,9 +143,11 @@ Fsa = 50;
 
 % Chebyshev Type 1 High pass filter 
 order_a=2;
-Rp=3; % 3 dB
-wn_a=0.5/(Fsa/2); % 0.5 Hz 
+Rp=2; % 3 dB
+wn_a=0.5/(Fsa/2); % 0.5 Hz  % 0.012
 [b_a,a_a]=cheby1(order_a,Rp, wn_a, 'high');
+
+% lo
 
 % fvtool(b_a, a_a);
 
@@ -214,7 +216,7 @@ T_a=round(length_acc/Fsa);
 figure(2);
 x_a=linspace(0+offset,T_a+offset,length_acc);
 plot(x_a,RMS);
-axis([0,T_v,0,y_max]);
+%axis([0,T_v,0,y_max]);
 title('RMS Speed');
 ylabel('mm/s');
 xlabel('time (s)');
