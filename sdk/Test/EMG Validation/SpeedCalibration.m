@@ -52,7 +52,7 @@ num_emg_signals = size(base_emg,2);
 %% File for Video Speed - 24 Hz 
 % frame #, velocity
 
-str_vid = 'speedOguz';
+str_vid = 'speedOguz.csv';
 base_vid = csvread(strcat('06271/',str_vid,'.csv'));
 
 Fsv = 24; %hz 
