@@ -39,8 +39,6 @@ for i=1:length(fh)
      clo(fh(i));
 end
 
-
-
 %% File for Raw Myo Accel Reading - 50 Hz
 % 3 axis accelerometer
 
@@ -162,6 +160,16 @@ Rp=20; %dB
 wn_a=0.016/(Fsa/2); % 0.016 - 2* nyquist/length
 [b_a,a_a]=cheby1(order_a,Rp, wn_a, 'high');
 
+
+%[b_a,a_a] = butter(order_a,wn_a,'high');
+
+% % low pass filter 
+% 
+% order_a2=4;
+% wn_a2=3/(Fsa/2);
+% [b_a2,a_a2]=butter(order_a2, wn_a2, 'low');
+
+
 %fvtool(b_a, a_a);
 
 %% Filter Accelerations
@@ -176,21 +184,30 @@ end
 
 %% Filter Oriented Acceleration 
 
+% TODO - why does this make things close 
+%base_acc_w(:,3) = base_acc_w(:,3) - 9.8;
+
 for i=1:num_acc_signals
   filt_acc_signal_w(:,i)=filter(b_a,a_a,base_acc_w(:,i)); 
   %filt_acc_signal(:,i)=filtfilt(b_a,a_a,base_acc_w(:,i));
 end
 
-%% temporary get some averages of the data
-% acc_avg = zeros(3,1);
-% for i=1:3
-%     acc_avg(i) = mean(base_acc_w(length_acc_w-500:length_acc_w,i));
-% end
-% 
-% 
+% % Apply low pass filter 
 % for i=1:num_acc_signals
-%   filt_acc_signal_w(:,i)=base_acc_w(:,i) - acc_avg(i);
+%   filt_acc_signal_w(:,i)=filter(b_a2,a_a2,filt_acc_signal_w(:,i)); 
+%   %filt_acc_signal(:,i)=filtfilt(b_a,a_a,base_acc_w(:,i));
 % end
+
+%% temporary get some averages of the data
+acc_avg = zeros(3,1);
+for i=1:3
+    acc_avg(i) = mean(base_acc_w(1:length_acc_w,i));
+end
+
+
+for i=1:num_acc_signals
+  filt_acc_signal_w(:,i)=base_acc_w(:,i) - acc_avg(i);
+end
 
 
 
@@ -308,17 +325,29 @@ xlabel('time (s)');
 
 %% Calculating RMS Speed 
 
-
 dt = 1/Fsa; 
 %Calculate Velocity 
 velocity = zeros(length_acc, num_acc_signals);
 
-% Ignore the first 5 seconds of data (5*50 = 250)
+%% Ignore the first 5 seconds of data (5*50 = 250)
 for i=1:num_acc_signals 
-    for j=250:length_acc
+    for j=250:length_acc 
         velocity(j,i)= velocity(j-1,i) + filt_acc_signal_w(j-1,i)*dt;
     end
 end
+
+% %% Try low pass filter on velocity 
+% 
+% order_v=4;
+% wn_v=0.1/(Fsa/2);
+% [b_v,a_v]=butter(order_v, wn_v, 'low');
+% 
+% % Filtering all 8 EMG signals
+% filt_vel_signal = zeros(length_acc, num_acc_signals);
+% for i=1:num_acc_signals
+%   filt_vel_signal(:,i)=filter(b_v,a_v,velocity(:,i)); 
+%     
+% end
 
 
 %Summing for RMS 
@@ -339,7 +368,6 @@ temp = RMS*1000;
 RMS = temp;
 
 
-
 % csvwrite('06271/filtRMSOguz.csv', RMS);
 
 
@@ -355,13 +383,21 @@ title('Ground Truth Speed');
 ylabel('mm/s');
 xlabel('time (s)');
 
+%% Plot Velocity
+    figure(11);
+    x_a=linspace(0+offset,T_a+offset,length_acc);
+    plot(x_a, velocity);
+    title('Velocity along each axis');
+    ylabel('m/s');
+    xlabel('time (s)');
+    legend('x','y','z');
 
 %% Plot RMS Data 
 %hold on;
 % RMS Speed 
 y_max=1000;
 T_a=round(length_acc/Fsa);
-figure(11);
+figure(12);
 x_a=linspace(0+offset,T_a+offset,length_acc);
 plot(x_a,RMS);
 %axis([0,T_v,0,y_max]);
