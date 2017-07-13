@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<annotation-spec>
+  <head>
+    <valuetype-def>
+      <valueset name="something_InternalValueType_0">
+        <value-el>eins</value-el>
+        <value-el>zwei</value-el>
+      </valueset>
+    </valuetype-def>
+  </head>
+  <body>
+    <font color="#000000" face="SansSerif" size="12" style="plain"/>
+    <track-spec color-attr="Therblig" name="Therbligs" type="primary">
+      <font color="#000000" face="Dialog" size="10" style="plain"/>
+      <attribute name="Action" valuetype="String"/>
+    </track-spec>
+  </body>
+</annotation-spec>
