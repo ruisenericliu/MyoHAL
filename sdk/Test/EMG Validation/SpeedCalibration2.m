@@ -103,30 +103,30 @@ end
 %% Temporary plot to estimate beginning  fist times 
 % Weighting EMG values
 
-% %weight order - based on positions of myo and physiology;
-% weights=[.20, .20, .05, .05, .10, .10, .10, .20];
-% 
-% sum_EMG= zeros(length_emg,1);
-% for i=1:length_emg
-%     temp_sum=0;
-%     for j=1:num_emg_signals
-%     temp_sum = temp_sum + filt_emg_signal(i,j)*weights(j);
-%     end
-%     sum_EMG(i)=temp_sum;
-%     
-% end
-% 
-% % Plot 
-% 
-% y_max=127;
-% T_e=round(2000/Fse);
-% figure(1000);
-% x_e=linspace(0,T_e,2000);
-% plot(x_e,sum_EMG(1:2000,:));
-% axis([0,T_e,0,y_max]);
-% title('Weighted Average of EMG signals');
-% ylabel('Unsigned 8 bit int');
-% xlabel('time (s)');
+%weight order - based on positions of myo and physiology;
+weights=[.20, .20, .05, .05, .10, .10, .10, .20];
+
+sum_EMG= zeros(length_emg,1);
+for i=1:length_emg
+    temp_sum=0;
+    for j=1:num_emg_signals
+    temp_sum = temp_sum + filt_emg_signal(i,j)*weights(j);
+    end
+    sum_EMG(i)=temp_sum;
+    
+end
+
+% Plot 
+
+y_max=127;
+T_e=round(2000/Fse);
+figure(1000);
+x_e=linspace(0,T_e,2000);
+plot(x_e,sum_EMG(1:2000,:));
+axis([0,T_e,0,y_max]);
+title('Weighted Average of EMG signals');
+ylabel('Unsigned 8 bit int');
+xlabel('time (s)');
 
 %% Examining Frequency domain of a single Acc signal
 % 
