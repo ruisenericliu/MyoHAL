@@ -1,11 +1,11 @@
 %% Preprocessing.m 
 
-enable_plot = true;
+enable_plot = false;
 subinterval_time = 0.2;
 
 %% offset estimate between video and Myo 
-vid_mark = [201/30, 278/30, 355/30]; % software estimates at 30 FPS.
-guess_mark = [1.481, 4.207, 6.848];
+vid_mark = [148/20, 202/20, 264/20]; % software estimates at 30 FPS.
+guess_mark = [2.461, 5.523, 8.579];
 offset = mean(vid_mark - guess_mark); % Myo is ~ 5.09s delayed.
 
 %% Close figures
@@ -15,10 +15,14 @@ for i=1:length(fh)
      clo(fh(i));
 end
 
+%% Label files
+
+fileID = fopen('/Users/toppykung/Desktop/0731KrittisakH.txt','r');
+
 %% File for world oriented Myo Accel Reading - 50 Hz 
 
-str_acc_w = 'worldAccel';
-base_acc_w = csvread(strcat('07031/',str_acc_w,'.csv'));
+str_acc_w = 'worldAccelH';
+base_acc_w = csvread(strcat('../07312/',str_acc_w,'.csv'));
 base_acc_w(:,3) = base_acc_w(:,3) - 9.8;
 
 Fsa = 50;
@@ -27,8 +31,8 @@ num_acc_signals_w = size(base_acc_w,2);
 
 %% File for Myo EMG Reading - 200 Hz 
 % 8 emg sensors 
-str_emg = 'emg';
-base_emg = csvread(strcat('07031/',str_emg,'.csv'));
+str_emg = 'emgH';
+base_emg = csvread(strcat('../07312/',str_emg,'.csv'));
 
 length_emg = size(base_emg,1);
 num_emg_signals = size(base_emg,2);
@@ -55,7 +59,38 @@ end
 
 y_max_e = zeros(num_emg_signals, 1);
 
-% Convert EMG signals from 200 Hz to 50 Hz
+%% Temporary plot to estimate beginning  fist times 
+
+if enable_plot
+    % Weighting EMG values
+
+    %weight order - based on positions of myo and physiology;
+    weights=[.20, .20, .05, .05, .10, .10, .10, .20];
+
+    sum_EMG= zeros(length_emg,1);
+    for i=1:length_emg
+        temp_sum=0;
+        for j=1:num_emg_signals
+        temp_sum = temp_sum + filt_emg_signal(i,j)*weights(j);
+        end
+        sum_EMG(i)=temp_sum;
+
+    end
+
+    % Plot 
+
+    y_max=127;
+    T_e=round(2000/Fse);
+    figure(1000);
+    x_e=linspace(0,T_e,2000);
+    plot(x_e,sum_EMG(1:2000,:));
+    axis([0,T_e,0,y_max]);
+    title('Weighted Average of EMG signals');
+    ylabel('Unsigned 8 bit int');
+    xlabel('time (s)');
+end
+
+%% Convert EMG signals from 200 Hz to 50 Hz
 length_emg_avg = round (length_emg / 4);
 filt_emg_signal_avg = zeros(length_emg_avg, num_emg_signals);
 for i=1:num_emg_signals
@@ -133,8 +168,6 @@ end
 
 %% Read labels from video
 
-fileID = fopen('/Users/toppykung/Desktop/Therbligs.txt','r');
-
 % 'Rest'                1
 % 'Transport_Empty'     2
 % 'Transport_Loaded'    3
@@ -209,46 +242,58 @@ end
 
 %% Plot each therblig subinterval
 
-% length_therbligs = size (therbligs, 1)
-% 
-% for num=4:6%length_therbligs
-%     figure('Name',therbligs{num,3});
-%     
-%     time_start = therbligs{num,1} - offset;
-%     time_end = therbligs{num,2} - offset;
-%     frame_start = round (time_start * 50);
-%     frame_end = round (time_end * 50);
-%     frame_length = frame_end - frame_start + 1;
-%     
-%     %% Plot Filtered EMG Data
-%     for i=1:num_emg_signals
-% %         ax(i) = subplot(12,1,i);
-%         ax(i) = subplot(9,1,i);
-%         y_max=y_max_e(i);
-%         x=linspace(time_start,time_end,frame_length);
-%         plot(x,filt_emg_signal_avg(frame_start:frame_end,i));
-%         axis([time_start,time_end,0,y_max]);
-%         ylabel(strcat ('emg ', int2str (i)));
-%     end
-%     
-%     %% Plot Raw Acceleration Data
-% %     for i=1:num_acc_signals_w
-% %         ax(8+i) = subplot(12,1,8+i);
-% %         y_max=20;
-% %         x_a=linspace(time_start,time_end,frame_length);
-% %         plot(x_a,base_acc_w(frame_start:frame_end,i));
-% %         axis([time_start,time_end,-y_max,y_max]);
-% %     end
-% 
-%     %% Plot Acceleration Magnitude
-% %     ax(12) = subplot (12,1,12);
-%     ax(9) = subplot (9,1,9);
-%     y_max=5;%max(mag_acc);
-%     x_a=linspace(time_start,time_end,frame_length);
-%     plot(x_a,mag_acc(frame_start:frame_end));
-%     axis([time_start,time_end,0,y_max]);
-%     ylabel('mag acc');
-% end
+length_therbligs = size (therbligs, 1)
+
+for num=2:9%length_therbligs
+    name = therbligs{num,3};
+    if name == 1
+        name = 'Rest';
+    elseif name == 2
+        name = 'Transport_Empty';
+    elseif name == 3
+        name = 'Transport_Loaded';
+    elseif name == 4
+        name = 'Hold';
+    elseif name == 5
+        name = 'Grasp';
+    elseif name == 6
+        name = 'Release_Load';
+    end
+    figure('Name',name);
+    
+    time_start = therbligs{num,1} - offset;
+    time_end = therbligs{num,2} - offset;
+    frame_start = round (time_start * 50);
+    frame_end = round (time_end * 50);
+    frame_length = frame_end - frame_start + 1;
+    
+    %% Plot Filtered EMG Data
+    for i=1:num_emg_signals
+        ax(i) = subplot(12,1,i);
+        y_max=y_max_e(i);
+        x=linspace(time_start,time_end,frame_length);
+        plot(x,filt_emg_signal_avg(frame_start:frame_end,i));
+        axis([time_start,time_end,0,y_max]);
+        ylabel(strcat ('emg ', int2str (i)));
+    end
+    
+    %% Plot Raw Acceleration Data
+    for i=1:num_acc_signals_w
+        ax(8+i) = subplot(12,1,8+i);
+        y_max=5;
+        x_a=linspace(time_start,time_end,frame_length);
+        plot(x_a,base_acc_w(frame_start:frame_end,i));
+        axis([time_start,time_end,-y_max,y_max]);
+    end
+
+    %% Plot Acceleration Magnitude
+    ax(12) = subplot (12,1,12);
+    y_max=5;%max(mag_acc);
+    x_a=linspace(time_start,time_end,frame_length);
+    plot(x_a,mag_acc(frame_start:frame_end));
+    axis([time_start,time_end,0,y_max]);
+    ylabel('mag acc');
+end
 
 if enable_plot
     %% Rest
@@ -615,51 +660,51 @@ end
 
 %% Create Data for Training
 
-length_therbligs = size (therbligs, 1)
-subinterval_frame = round (subinterval_time * Fsa);
-
-X_data = zeros (subinterval_frame,12,N);
-y_data = [];
-
-id = 1;
-
-for num=1:length_therbligs
-    label = therbligs{num,3};
-    
-    if strcmp (label, 'Rest')
-        label = 1;
-    elseif strcmp (label, 'Transport_Empty')
-        label = 2;
-    elseif strcmp (label, 'Transport_Loaded')
-        label = 3;
-    elseif strcmp (label, 'Hold')
-        label = 4;
-    elseif strcmp (label, 'Grasp')
-        label = 5;
-    elseif strcmp (label, 'Release_Load')
-        label = 6;
-    end
-    
-    time_start = therbligs{num,1} - offset;
-    time_end = therbligs{num,2} - offset;
-    frame_start = round (time_start * Fsa);
-    frame_end = round (time_end * Fsa);
-    frame_length = frame_end - frame_start + 1;
-    
-    for st=frame_start:subinterval_frame:(frame_end-subinterval_frame+1)
-        ed = st + subinterval_frame - 1;
-
-        X = [];
-        for i=1:num_emg_signals
-            X = [X,filt_emg_signal_avg(st:ed,i)];
-        end
-        for i=1:num_acc_signals_w
-            X = [X,base_acc_w(st:ed,i)];
-        end
-        X = [X,mag_acc(st:ed)];
-        
-        X_data(:,:,id) = X;
-        y_data = [y_data; label];
-        id = id + 1;
-    end
-end
+% length_therbligs = size (therbligs, 1)
+% subinterval_frame = round (subinterval_time * Fsa);
+% 
+% X_data = zeros (subinterval_frame,12,N);
+% y_data = [];
+% 
+% id = 1;
+% 
+% for num=1:length_therbligs
+%     label = therbligs{num,3};
+%     
+%     if strcmp (label, 'Rest')
+%         label = 1;
+%     elseif strcmp (label, 'Transport_Empty')
+%         label = 2;
+%     elseif strcmp (label, 'Transport_Loaded')
+%         label = 3;
+%     elseif strcmp (label, 'Hold')
+%         label = 4;
+%     elseif strcmp (label, 'Grasp')
+%         label = 5;
+%     elseif strcmp (label, 'Release_Load')
+%         label = 6;
+%     end
+%     
+%     time_start = therbligs{num,1} - offset;
+%     time_end = therbligs{num,2} - offset;
+%     frame_start = round (time_start * Fsa);
+%     frame_end = round (time_end * Fsa);
+%     frame_length = frame_end - frame_start + 1;
+%     
+%     for st=frame_start:subinterval_frame:(frame_end-subinterval_frame+1)
+%         ed = st + subinterval_frame - 1;
+% 
+%         X = [];
+%         for i=1:num_emg_signals
+%             X = [X,filt_emg_signal_avg(st:ed,i)];
+%         end
+%         for i=1:num_acc_signals_w
+%             X = [X,base_acc_w(st:ed,i)];
+%         end
+%         X = [X,mag_acc(st:ed)];
+%         
+%         X_data(:,:,id) = X;
+%         y_data = [y_data; label];
+%         id = id + 1;
+%     end
+% end
