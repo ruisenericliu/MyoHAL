@@ -4,8 +4,8 @@ enable_plot = false;
 subinterval_time = 0.2;
 
 %% offset estimate between video and Myo 
-vid_mark = [148/20, 202/20, 264/20]; % software estimates at 30 FPS.
-guess_mark = [2.461, 5.523, 8.579];
+vid_mark = [294/20, 331/20, 368/20]; % software estimates at 30 FPS.
+guess_mark = [2.156, 3.937, 5.883];
 offset = mean(vid_mark - guess_mark); % Myo is ~ 5.09s delayed.
 
 %% Close figures
@@ -17,12 +17,12 @@ end
 
 %% Label files
 
-fileID = fopen('/Users/toppykung/Desktop/0731KrittisakH.txt','r');
+fileID = fopen('07313/0731EricHTherblig.txt','r');
 
 %% File for world oriented Myo Accel Reading - 50 Hz 
 
 str_acc_w = 'worldAccelH';
-base_acc_w = csvread(strcat('../07312/',str_acc_w,'.csv'));
+base_acc_w = csvread(strcat('07313/',str_acc_w,'.csv'));
 base_acc_w(:,3) = base_acc_w(:,3) - 9.8;
 
 Fsa = 50;
@@ -32,7 +32,7 @@ num_acc_signals_w = size(base_acc_w,2);
 %% File for Myo EMG Reading - 200 Hz 
 % 8 emg sensors 
 str_emg = 'emgH';
-base_emg = csvread(strcat('../07312/',str_emg,'.csv'));
+base_emg = csvread(strcat('07313/',str_emg,'.csv'));
 
 length_emg = size(base_emg,1);
 num_emg_signals = size(base_emg,2);
@@ -65,7 +65,7 @@ if enable_plot
     % Weighting EMG values
 
     %weight order - based on positions of myo and physiology;
-    weights=[.20, .20, .05, .05, .10, .10, .10, .20];
+    weights=[.125, .125, .125, .125, .125, .125, .125, .125];
 
     sum_EMG= zeros(length_emg,1);
     for i=1:length_emg

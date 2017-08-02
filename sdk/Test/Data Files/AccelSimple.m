@@ -1,6 +1,6 @@
 % File for Accel Reading - 50 Hz
-str_acc = 'accel';
-base_acc = csvread(strcat('07181/',str_acc,'.csv'));
+str_acc = 'accelThermal';
+base_acc = csvread(strcat('07311/',str_acc,'.csv'));
 
 
 %% Filter Acceleration Signals 
@@ -44,3 +44,8 @@ axis([0,T_a,5,15]);
 title('Magnitude of Acceleration');
 ylabel('m/s^2');
 xlabel('time (s)');
+
+
+%% Mean subtract and see if there's drift
+
+
