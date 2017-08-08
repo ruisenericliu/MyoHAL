@@ -2,22 +2,16 @@
 str_acc = 'accelMP';
 base_acc = csvread(strcat('08033/',str_acc,'.csv'));
 
+str_acc = 'worldAccelH';
+base_acc = csvread(strcat('07313/',str_acc,'.csv'));
+
+
+
 % clean up motion
-base_acc = base_acc(200:end,:);
+%base_acc = base_acc(200:end,:);
 
 length_acc = size(base_acc,1);
 num_acc_signals = size(base_acc,2);
-
-
-%% File for world oriented Myo Accel Reading - 50 Hz 
-
-str_acc_w = 'worldAccelMP';
-base_acc = csvread(strcat('08033/',str_acc_w,'.csv'));
-
-base_acc = base_acc(200:end,:);
-
-%length_acc_w = size(base_acc_w,1);
-%num_acc_signals_w = size(base_acc_w,2);
 
 
 

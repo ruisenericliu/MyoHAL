@@ -32,6 +32,18 @@ vid_mark = [201/30, 278/30, 355/30]; % software estimates at 30 FPS.
 guess_mark = [1.481, 4.207, 6.848];
 offset = mean(vid_mark - guess_mark); % Myo is ~ 5.09s delayed. 
 
+
+%% Shortcut estimate for grasp/release load frames
+% 30 FPS 
+
+no_reset= true;
+
+last_frame = round(1412/30);
+zero_frames = [490, 553, 602, 651, 690, 743, 780, 831, 871, 927, 965 ...
+    1020, 1074, 1124, 1170, 1215, 1258, 1297, 1367];
+
+zero_frames = zero_frames/30;
+
 %% Close figures
 
 fh=findall(0,'type','figure');
@@ -166,7 +178,7 @@ wn_a=0.016/(Fsa/2); % 0.016 - 2* nyquist/length
 % % low pass filter 
 % 
 % order_a2=4;
-% wn_a2=3/(Fsa/2);
+% wn_a2=5/(Fsa/2);
 % [b_a2,a_a2]=butter(order_a2, wn_a2, 'low');
 
 
@@ -198,11 +210,14 @@ end
 %   %filt_acc_signal(:,i)=filtfilt(b_a,a_a,base_acc_w(:,i));
 % end
 
-%% temporary get some averages of the data
+%% Temporarily get some averages of the data
 acc_avg = zeros(3,1);
 for i=1:3
     acc_avg(i) = mean(base_acc_w(1:length_acc_w,i));
 end
+
+
+%% Temp -Overwriting previous filters - doing only mean subtraction.
 
 
 for i=1:num_acc_signals
@@ -308,31 +323,56 @@ ylabel('m/s^2');
 xlabel('time (s)');
  
 
-%% Plot them together
-% figure;
-% hold on;
-% plot(x_a,mag_acc);
-% plot(x_v,base_vid(:,3)/1000);
-% axis([10,T_v,0,y_max]);
-% title('Acceleration');
-% ylabel('m/s^2');
-% xlabel('time (s)');
-% legend('armband', 'video');
-% 
-% hold off;
 
-
-
-%% Calculating RMS Speed 
+%% Calculating Speed 
 
 dt = 1/Fsa; 
 %Calculate Velocity 
-velocity = zeros(length_acc, num_acc_signals);
 
 %% Ignore the first 5 seconds of data (5*50 = 250)
+
+
+% fill all indices with -1
+velocity = -1*ones(length_acc, num_acc_signals);
+
+% set the initial 5s of velocity to be zero 
+
+for i=1:num_acc_signals
+    for j=1:250
+        velocity(j,i) = 0;
+    end
+end
+
+% set the grasp/release frames to 0 
+for i=1:num_acc_signals
+    for j=1:size(zero_frames,2)
+        velocity( round( zero_frames(1,j) - offset)*50 , i) = 0;
+    end
+
+end
+
+% compute the rest
 for i=1:num_acc_signals 
-    for j=250:length_acc 
-        velocity(j,i)= velocity(j-1,i) + filt_acc_signal_w(j-1,i)*dt;
+    for j=2:length_acc
+        if j>(round(last_frame-offset)*50)
+            velocity(j,i) = 0;
+        elseif velocity(j,i) == -1 % calculate only non-computed 
+            velocity(j,i) = velocity(j-1,i) + sub_acc_signal(j-1,i)*dt;
+        end
+    end
+end
+
+
+
+if no_reset
+    for i=1:num_acc_signals 
+        for j=250:length_acc 
+            if j> (round(last_frame-offset)*50)
+                velocity(j,i) = 0;
+            else
+            velocity(j,i)= velocity(j-1,i) + filt_acc_signal_w(j-1,i)*dt;
+            end
+        end
     end
 end
 
@@ -384,23 +424,25 @@ ylabel('mm/s');
 xlabel('time (s)');
 
 %% Plot Velocity
-    figure(11);
+
+for i=1:num_acc_signals
+    figure(10+i);
     x_a=linspace(0+offset,T_a+offset,length_acc);
-    plot(x_a, velocity);
-    title('Velocity along each axis');
+    plot(x_a, velocity(:,i));
+    title(['Velocity along axis ', num2str(i)]);
     ylabel('m/s');
     xlabel('time (s)');
-    legend('x','y','z');
+end
 
 %% Plot RMS Data 
 %hold on;
 % RMS Speed 
-y_max=1000;
+y_max=2000;
 T_a=round(length_acc/Fsa);
-figure(12);
+figure(14);
 x_a=linspace(0+offset,T_a+offset,length_acc);
 plot(x_a,RMS);
-%axis([0,T_v,0,y_max]);
+axis([0,T_v,0,y_max]);
 title('Armband RMS Speed');
 ylabel('mm/s');
 xlabel('time (s)');
