@@ -1,9 +1,21 @@
-% File for Accel Reading - 50 Hz
-str_acc = 'accelThermal';
-base_acc = csvread(strcat('07311/',str_acc,'.csv'));
+%% File for Accel Reading - 50 Hz
+str_acc = 'accelMP';
+base_acc = csvread(strcat('08033/',str_acc,'.csv'));
+
+str_acc = 'worldAccelH';
+base_acc = csvread(strcat('07313/',str_acc,'.csv'));
 
 
-%% Filter Acceleration Signals 
+
+% clean up motion
+%base_acc = base_acc(200:end,:);
+
+length_acc = size(base_acc,1);
+num_acc_signals = size(base_acc,2);
+
+
+
+% Plot Original Acceleration Signals 
 
 length_acc = size(base_acc,1);
 num_acc_signals = size(base_acc,2);
@@ -46,6 +58,58 @@ ylabel('m/s^2');
 xlabel('time (s)');
 
 
-%% Mean subtract and see if there's drift
+%% Mean subtract raw Accel and see if there's drift
+
+%% get some averages of the data
+acc_avg = zeros(num_acc_signals,1);
+for i=1:num_acc_signals
+    acc_avg(i) = mean(base_acc(1:length_acc,i));
+end
+
+sub_acc_signal=zeros(length_acc,num_acc_signals);
+
+for i=1:num_acc_signals
+  sub_acc_signal(:,i)=base_acc(:,i) - acc_avg(i);
+end
+
+%% Mean subtracted acceleration 
 
 
+for i=1:3
+    figure(4+i);
+    x_a=linspace(0,T_a,length_acc);
+    plot(x_a,sub_acc_signal(:,i));
+    axis([0,T_a,-5,5]);
+    title(['Mean Subtracted -Axis ', num2str(i)]);
+    ylabel('m/s^2');
+    xlabel('time (s)');
+end
+
+
+
+%% Calculating Velocity
+
+dt = 1/Fsa; 
+%Calculate Velocity 
+velocity = zeros(length_acc, num_acc_signals);
+
+% Calculate Velocity
+
+for i=1:num_acc_signals 
+    for j=2:length_acc 
+        velocity(j,i)= velocity(j-1,i) + sub_acc_signal(j-1,i)*dt;
+    end
+end
+
+
+%% Plot Velocity
+
+figure(8);
+x_a=linspace(0,T_a,length_acc);
+plot(x_a, velocity);
+title('Velocity along each axis');
+ylabel('m/s');
+xlabel('time (s)');
+legend('x','y','z');
+
+%% Try Kalman Filter? 

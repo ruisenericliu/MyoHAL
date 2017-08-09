@@ -351,7 +351,7 @@ int main(int argc, char** argv)
     quatOutFile.open(quatFile);
 
 
-    int seconds = 180;
+    int seconds = 60;
     hub.run(seconds*1000); // run for n milliseconds - this timing is accurate
     // for some reason, for short windows, EMG data is undersampled, but not IMU data is not
 
