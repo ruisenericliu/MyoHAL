@@ -188,7 +188,6 @@ transport_loaded = cell (0,3);
 hold = cell (0,3);
 grasp = cell (0,3);
 release_load = cell (0,3);
-N = 0;
  
 while ischar(temp)
     temp = strsplit (temp);
@@ -232,15 +231,6 @@ while ischar(temp)
     therbligs{end + 1, 1} = start_time;
     therbligs{end, 2} = end_time;
     therbligs{end, 3} = name;
-    
-    time_start = start_time - offset;
-    time_end = end_time - offset;
-    frame_start = round (time_start * Fsa);
-    frame_end = round (time_end * Fsa);
-    frame_length = frame_end - frame_start + 1;
-    subinterval_frame = round (subinterval_time * Fsa);
-    
-    N = N + floor (frame_length / subinterval_frame);
     
     temp = fgetl(fileID);
 end
@@ -702,51 +692,66 @@ end
  
 %% Create Data for Training
  
-% length_therbligs = size (therbligs, 1)
-% subinterval_frame = round (subinterval_time * Fsa);
-% 
-% X_data = zeros (subinterval_frame,12,N);
-% y_data = [];
-% 
-% id = 1;
-% 
-% for num=1:length_therbligs
-%     label = therbligs{num,3};
-%     
-%     if strcmp (label, 'Rest')
-%         label = 1;
-%     elseif strcmp (label, 'Transport_Empty')
-%         label = 2;
-%     elseif strcmp (label, 'Transport_Loaded')
-%         label = 3;
-%     elseif strcmp (label, 'Hold')
-%         label = 4;
-%     elseif strcmp (label, 'Grasp')
-%         label = 5;
-%     elseif strcmp (label, 'Release_Load')
-%         label = 6;
-%     end
-%     
-%     time_start = therbligs{num,1} - offset;
-%     time_end = therbligs{num,2} - offset;
-%     frame_start = round (time_start * Fsa);
-%     frame_end = round (time_end * Fsa);
-%     frame_length = frame_end - frame_start + 1;
-%     
-%     for st=frame_start:subinterval_frame:(frame_end-subinterval_frame+1)
-%         ed = st + subinterval_frame - 1;
-% 
-%         X = [];
-%         for i=1:num_emg_signals
-%             X = [X,filt_emg_signal_avg(st:ed,i)];
-%         end
-%         for i=1:num_acc_signals_w
-%             X = [X,base_acc_w(st:ed,i)];
-%         end
-%         X = [X,mag_acc(st:ed)];
-%         
-%         X_data(:,:,id) = X;
-%         y_data = [y_data; label];
-%         id = id + 1;
-%     end
-% end
+length_therbligs = size (therbligs, 1);
+subinterval_frame = round (subinterval_time * Fsa);
+
+X_data = [];
+y_data = [];
+
+id = 1;
+
+for num=1:length_therbligs
+    label = therbligs{num,3};
+    
+    time_start = therbligs{num,1} - offset;
+    time_end = therbligs{num,2} - offset;
+    frame_start = round (time_start * Fsa);
+    frame_end = round (time_end * Fsa);
+    frame_length = frame_end - frame_start + 1;
+    
+    for st=frame_start:subinterval_frame:(frame_end-subinterval_frame+1)
+        ed = st + subinterval_frame - 1;
+
+        X = [];
+        for i=1:num_emg_signals
+            X = [X; filt_emg_signal_avg(st:ed,i)];
+        end
+        for i=1:num_acc_signals_w
+            X = [X; base_acc_w(st:ed,i)];
+        end
+        X = [X; mag_acc(st:ed)];
+        
+        y = zeros (6, 1);
+        y (label) = 1;
+        
+        X_data = [X_data, X];
+        y_data = [y_data, y];
+        id = id + 1;
+    end
+end
+
+numInputs = 1;
+numLayers = 2;
+biasConnect = [1; 1];
+inputConnect = [1; 0];
+layerConnect = [0 0; 1 0];
+outputConnect = [0 1];
+
+net = network(numInputs,numLayers,biasConnect,inputConnect,layerConnect,outputConnect);
+
+net.inputs{1}.size = size (X_data, 1);
+
+net.layers{1}.size = 100;
+net.layers{1}.transferFcn = 'tansig';
+net.layers{1}.initFcn = 'initnw';
+
+net.layers{2}.size = 6;
+net.layers{2}.transferFcn = 'logsig';
+net.layers{2}.initFcn = 'initnw';
+
+net.initFcn = 'initlay';
+net.performFcn = 'crossentropy';
+net.trainFcn = 'trainscg';
+
+net = init (net);
+net = train (net, X_data, y_data);

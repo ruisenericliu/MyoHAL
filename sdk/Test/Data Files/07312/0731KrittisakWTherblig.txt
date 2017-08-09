@@ -10,7 +10,7 @@ f0t0e7 22.45 23.5 Release_Load
 f0t0e8 23.5 24.7 Transport_Empty
 f0t0e9 24.7 25.6 Grasp
 f0t0e10 25.6 27.1 Hold
-f0t0e11 27.1 28.75 Transport_Load
+f0t0e11 27.1 28.75 Transport_Loaded
 f0t0e12 28.75 29.6 Release_Load
 f0t0e13 29.6 30.6 Transport_Empty
 f0t0e14 30.6 32.2 Grasp
@@ -77,7 +77,7 @@ f0t0e74 104.4 105.4 Grasp
 f0t0e75 105.4 106.55 Release_Load
 f0t0e76 106.55 107.4 Transport_Empty
 f0t0e77 107.4 108.4 Grasp
-f0t0e78 108.4 110.55 Transport_Load
+f0t0e78 108.4 110.55 Transport_Loaded
 f0t0e79 110.55 111.4 Release_Load
 f0t0e80 111.4 112.8 Transport_Empty
 f0t0e81 112.8 113.5 Grasp
