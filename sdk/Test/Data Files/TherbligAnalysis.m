@@ -94,7 +94,7 @@ sizes(4) = size(hold,1);
 sizes(5) = size(grasp,1);
 sizes(6) = size(release_load,1);
 
-%% Lazy coding - go back and update 
+%% Lazy math coding - go back and update 
 
 for i=1:size(rest,1)
     totals(1) = totals(1) + (rest(i, 2) - rest(i,1));

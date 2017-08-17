@@ -1,20 +1,40 @@
 %% Preprocessing.m 
 
-options = 1; % 1 for 6 outputs; 2 for 4 outputs; 3 for 4 outputs with merging
+fileChoice = 2; 
+options = 1; % 1 for 6 outputs; 
+             % 2 for 4 outputs; 
+             % 3 for 4 outputs with merging
+             % 4 for exertion/non exertion
+            
+% Option 3 is not true
 enable_plot = false;
 subinterval_time = 0.2;
+
  
 %% offset estimate between video and Myo
-vid_mark = [294/20, 331/20, 368/20];
-guess_mark = [2.156, 3.937, 5.883];
-offset = mean(vid_mark - guess_mark); % Myo is ~ 4.7s delayed.
- 
-%% Set file's names
 
-folder_name = '07313';
-str_file = '0731EricHTherblig';
-str_acc_w = 'worldAccelH';
-str_emg = 'emgH';
+if (fileChoice == 1) 
+    
+    vid_mark = [294/20, 331/20, 368/20];
+    guess_mark = [2.156, 3.937, 5.883];
+    offset = mean(vid_mark - guess_mark); % Myo is ~ 4.7s delayed.
+ 
+    folder_name = '07313';
+    str_file = '0731EricHTherblig';
+    str_acc_w = 'worldAccelH';
+    str_emg = 'emgH';
+
+elseif (fileChoice == 2) 
+   
+    vid_mark = [214/17, 241/17, 271/17];
+    guess_mark = [1.811,3.357, 5.338  ];
+    offset = mean(vid_mark - guess_mark);
+    folder_name = '07313';
+    str_file = '0731EricWTherblig';
+    str_acc_w = 'worldAccelW';
+    str_emg = 'emgW';
+    
+end
 
 %% Close figures
  
@@ -78,7 +98,7 @@ if enable_plot
     % Weighting EMG values
  
     %weight order - based on positions of myo and physiology;
-    weights=[.20, .20, .05, .05, .10, .10, .10, .20];
+    weights=[.125, .125, .125, .125,.125,.125,.125,.125];
  
     sum_EMG= zeros(length_emg,1);
     for i=1:length_emg
@@ -193,7 +213,6 @@ end
 % 'Grasp'               5
 % 'Release_Load'        6
 temp = fgetl(fileID);
-temp = fgetl(fileID);
 therbligs = cell (0,3);
 rest = cell (0,3);
 transport_empty = cell (0,3);
@@ -218,27 +237,52 @@ while ischar(temp)
         transport_empty{end + 1, 1} = start_time;
         transport_empty{end, 2} = end_time;
         transport_empty{end, 3} = name;
-        name = 2;
+        if  (options == 4)
+            name = 1;
+        else
+            name = 2;
+        end
     elseif strcmp (name, 'Transport_Loaded')
         transport_loaded{end + 1, 1} = start_time;
         transport_loaded{end, 2} = end_time;
         transport_loaded{end, 3} = name;
-        name = 3;
+        if  (options == 4)
+            name = 2;
+        else
+            name = 3;
+        end
     elseif strcmp (name, 'Hold')
         hold{end + 1, 1} = start_time;
         hold{end, 2} = end_time;
         hold{end, 3} = name;
-        name = 4;
+        if  (options == 4)
+            name = 2;
+        else
+            name = 4;
+        end
     elseif strcmp (name, 'Grasp')
         grasp{end + 1, 1} = start_time;
         grasp{end, 2} = end_time;
         grasp{end, 3} = name;
-        name = 5;
+        if  (options == 3)
+            name = 2;
+        elseif (options == 4)
+            name = 1;
+        else
+            name = 5;
+        end
     elseif strcmp (name, 'Release_Load')
         release_load{end + 1, 1} = start_time;
         release_load{end, 2} = end_time;
-        release_load{end, 3} = name;
-        name = 6;
+        release_load{end, 3} = name;   
+        if  (options == 3)
+            name = 3;
+        elseif (options == 4)
+            name = 2;
+        else
+            name = 6;
+        end
+        
     end
     
     if (name <= 4) | ((options == 1) & (name <= 6))
@@ -273,7 +317,7 @@ if enable_plot
 
         f = figure(1+num);
         p = uipanel('Parent',f,'BorderType','none'); 
-        p.Title = [name]; 
+        p.Title = name; 
         p.TitlePosition = 'centertop'; 
         p.FontSize = 12;
         p.FontWeight = 'bold';
@@ -317,7 +361,7 @@ end
 if enable_plot
     %% Rest
  
-    temp = rest
+    temp = rest;
  
     if size (temp, 1) > 0
         f = figure(1001);
@@ -387,7 +431,7 @@ if enable_plot
     if size (temp, 1) > 0
         f = figure(1002);
         p = uipanel('Parent',f,'BorderType','none'); 
-        p.Title = ['Transport Empty']; 
+        p.Title = 'Transport Empty'; 
         p.TitlePosition = 'centertop'; 
         p.FontSize = 12;
         p.FontWeight = 'bold';
@@ -452,7 +496,7 @@ if enable_plot
     if size (temp, 1) > 0
         f = figure(1003);
         p = uipanel('Parent',f,'BorderType','none'); 
-        p.Title = ['Transport Loaded']; 
+        p.Title = 'Transport Loaded'; 
         p.TitlePosition = 'centertop'; 
         p.FontSize = 12;
         p.FontWeight = 'bold';
@@ -517,7 +561,7 @@ if enable_plot
     if size (temp, 1) > 0
         f = figure(1004);
         p = uipanel('Parent',f,'BorderType','none'); 
-        p.Title = ['Hold']; 
+        p.Title = 'Hold'; 
         p.TitlePosition = 'centertop'; 
         p.FontSize = 12;
         p.FontWeight = 'bold';
@@ -582,7 +626,7 @@ if enable_plot
     if size (temp, 1) > 0
         f = figure(1005);
         p = uipanel('Parent',f,'BorderType','none'); 
-        p.Title = ['Grasp']; 
+        p.Title = 'Grasp'; 
         p.TitlePosition = 'centertop'; 
         p.FontSize = 12;
         p.FontWeight = 'bold';
@@ -647,7 +691,7 @@ if enable_plot
     if size (temp, 1) > 0
         f = figure(1006);
         p = uipanel('Parent',f,'BorderType','none'); 
-        p.Title = ['Release Load']; 
+        p.Title = 'Release Load'; 
         p.TitlePosition = 'centertop'; 
         p.FontSize = 12;
         p.FontWeight = 'bold';
@@ -717,6 +761,7 @@ y_data = [];
 
 id = 1;
 
+% Normalized
 for i=1:num_emg_signals
     mx = max (filt_emg_signal_avg(:,i));
     for j=1:length_emg_avg
@@ -761,9 +806,12 @@ for num=1:length_therbligs
         X = [X; mu];
 %         X = [X; mag_acc(st:ed)];
         
-        y = zeros (6, 1);
-        if options ~= 1
+        if (options ==2 || options == 3)
             y = zeros (4, 1);
+        elseif (options == 4) 
+            y = zeros (2, 1);
+        else
+            y = zeros(6,1);
         end
         y (label) = 1;
         
