@@ -1,7 +1,7 @@
 %% File for Myo EMG Reading - 200 Hz 
 % 8 emg sensors 
 str_emg = 'emg';
-base_emg = csvread(strcat('08181/0818E1/',str_emg,'.csv'));
+base_emg = csvread(strcat('08181/0818E8/',str_emg,'.csv'));
 
 length_emg = size(base_emg,1);
 num_emg_signals = size(base_emg,2);
@@ -26,6 +26,8 @@ for i=1:num_emg_signals
   filt_emg_signal(:,i)=filter(b_e,a_e,rect_signal(:,i)); 
     
 end
+
+max_emg = max(filt_emg_signal);
 
 %% Temporary plot to estimate beginning  fist times 
 % Weighting EMG values
