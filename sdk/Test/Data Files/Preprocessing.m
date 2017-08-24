@@ -13,7 +13,7 @@ subinterval_time = 0.2;
  
 %% offset estimate between video and Myo
 
-if (fileChoice == 1) 
+if (fileChoice == 1)
     
     vid_mark = [294/20, 331/20, 368/20];
     guess_mark = [2.156, 3.937, 5.883];
@@ -213,13 +213,18 @@ end
 % 'Grasp'               5
 % 'Release_Load'        6
 temp = fgetl(fileID);
-therbligs = cell (0,3);
-rest = cell (0,3);
-transport_empty = cell (0,3);
-transport_loaded = cell (0,3);
-hold = cell (0,3);
-grasp = cell (0,3);
-release_load = cell (0,3);
+therbligs = [];
+rest = [];
+transport_empty = [];
+transport_loaded = [];
+hold = [];
+grasp = [];
+release_load = []; 
+
+counter = 0;
+r = 0; te = 0; tl = 0; h = 0; g = 0; rl = 0;
+
+name = 0;
  
 while ischar(temp)
     temp = strsplit (temp);
@@ -229,41 +234,41 @@ while ischar(temp)
     name = temp{4};
     
     if strcmp (name, 'Rest')
-        rest{end + 1, 1} = start_time;
-        rest{end, 2} = end_time;
-        rest{end, 3} = name;
+        r = r+1;
+        rest(r, 1) = start_time;
+        rest(r, 2) = end_time;
         name = 1;
     elseif strcmp (name, 'Transport_Empty')
-        transport_empty{end + 1, 1} = start_time;
-        transport_empty{end, 2} = end_time;
-        transport_empty{end, 3} = name;
+        te = te+1;
+        transport_empty(te, 1) = start_time;
+        transport_empty(te, 2) = end_time;
         if  (options == 4)
             name = 1;
         else
             name = 2;
         end
     elseif strcmp (name, 'Transport_Loaded')
-        transport_loaded{end + 1, 1} = start_time;
-        transport_loaded{end, 2} = end_time;
-        transport_loaded{end, 3} = name;
+        tl = tl+1;
+        transport_loaded(tl, 1) = start_time;
+        transport_loaded(tl, 2) = end_time;
         if  (options == 4)
             name = 2;
         else
             name = 3;
         end
     elseif strcmp (name, 'Hold')
-        hold{end + 1, 1} = start_time;
-        hold{end, 2} = end_time;
-        hold{end, 3} = name;
+        h = h+1;
+        hold(h, 1) = start_time;
+        hold(h, 2) = end_time;
         if  (options == 4)
             name = 2;
         else
             name = 4;
         end
     elseif strcmp (name, 'Grasp')
-        grasp{end + 1, 1} = start_time;
-        grasp{end, 2} = end_time;
-        grasp{end, 3} = name;
+        g = g+1;
+        grasp(g, 1) = start_time;
+        grasp(g, 2) = end_time;
         if  (options == 3)
             name = 2;
         elseif (options == 4)
@@ -272,9 +277,9 @@ while ischar(temp)
             name = 5;
         end
     elseif strcmp (name, 'Release_Load')
-        release_load{end + 1, 1} = start_time;
-        release_load{end, 2} = end_time;
-        release_load{end, 3} = name;   
+        rl = rl+1;
+        release_load(rl, 1) = start_time;
+        release_load(rl, 2) = end_time;
         if  (options == 3)
             name = 3;
         elseif (options == 4)
@@ -286,9 +291,10 @@ while ischar(temp)
     end
     
     if (name <= 4) | ((options == 1) & (name <= 6))
-        therbligs{end + 1, 1} = start_time;
-        therbligs{end, 2} = end_time;
-        therbligs{end, 3} = name;
+        counter = counter + 1; 
+        therbligs(counter, 1) = start_time;
+        therbligs(counter, 2) = end_time;
+        therbligs(counter, 3) = name;
     end
     
     temp = fgetl(fileID);
@@ -300,7 +306,7 @@ length_therbligs = size (therbligs, 1);
 
 if enable_plot
     for num=2:2%length_therbligs
-        name = therbligs{num,3};
+        name = therbligs(num,3);
         if name == 1
             name = 'Rest';
         elseif name == 2
@@ -322,8 +328,8 @@ if enable_plot
         p.FontSize = 12;
         p.FontWeight = 'bold';
 
-        time_start = therbligs{num,1} - offset;
-        time_end = therbligs{num,2} - offset;
+        time_start = therbligs(num,1) - offset;
+        time_end = therbligs(num,2) - offset;
         frame_start = round (time_start * 50);
         frame_end = round (time_end * 50);
         frame_length = frame_end - frame_start + 1;
@@ -376,18 +382,18 @@ if enable_plot
         acc_m = [];
  
         for num=1:size(temp,1)
-            time_start = temp{num,1} - offset;
-            time_end = temp{num,2} - offset;
+            time_start = temp(num,1) - offset;
+            time_end = temp(num,2) - offset;
             frame_start = round (time_start * Fsa);
             frame_end = round (time_end * Fsa);
  
-            g = []
+            g = [];
             for i=1:num_emg_signals
                 g = [g,filt_emg_signal_avg(frame_start:frame_end,i)];
             end
             emg = [emg;g];
  
-            g = []
+            g = [];
             for i=1:num_acc_signals_w
                 g = [g,base_acc_w(frame_start:frame_end,i)];
             end
@@ -396,7 +402,7 @@ if enable_plot
             acc_m = [acc_m,mag_acc(frame_start:frame_end)'];
         end
  
-        frame_length = size (emg, 1)
+        frame_length = size (emg, 1);
  
         for i=1:num_emg_signals
             ax = subplot(12,1,i,'Parent',p);
@@ -426,7 +432,7 @@ if enable_plot
  
     %% Transport Empty
  
-    temp = transport_empty
+    temp = transport_empty;
  
     if size (temp, 1) > 0
         f = figure(1002);
@@ -441,18 +447,18 @@ if enable_plot
         acc_m = [];
  
         for num=1:size(temp,1)
-            time_start = temp{num,1} - offset;
-            time_end = temp{num,2} - offset;
+            time_start = temp(num,1) - offset;
+            time_end = temp(num,2) - offset;
             frame_start = round (time_start * Fsa);
             frame_end = round (time_end * Fsa);
  
-            g = []
+            g = [];
             for i=1:num_emg_signals
                 g = [g,filt_emg_signal_avg(frame_start:frame_end,i)];
             end
             emg = [emg;g];
  
-            g = []
+            g = [];
             for i=1:num_acc_signals_w
                 g = [g,base_acc_w(frame_start:frame_end,i)];
             end
@@ -461,7 +467,7 @@ if enable_plot
             acc_m = [acc_m,mag_acc(frame_start:frame_end)'];
         end
  
-        frame_length = size (emg, 1)
+        frame_length = size (emg, 1);
  
         for i=1:num_emg_signals
             ax = subplot(12,1,i,'Parent',p);
@@ -491,7 +497,7 @@ if enable_plot
  
     %% Transport Loaded
  
-    temp = transport_loaded
+    temp = transport_loaded;
  
     if size (temp, 1) > 0
         f = figure(1003);
@@ -506,18 +512,18 @@ if enable_plot
         acc_m = [];
  
         for num=1:size(temp,1)
-            time_start = temp{num,1} - offset;
-            time_end = temp{num,2} - offset;
+            time_start = temp(num,1) - offset;
+            time_end = temp(num,2) - offset;
             frame_start = round (time_start * Fsa);
             frame_end = round (time_end * Fsa);
  
-            g = []
+            g = [];
             for i=1:num_emg_signals
                 g = [g,filt_emg_signal_avg(frame_start:frame_end,i)];
             end
             emg = [emg;g];
  
-            g = []
+            g = [];
             for i=1:num_acc_signals_w
                 g = [g,base_acc_w(frame_start:frame_end,i)];
             end
@@ -526,7 +532,7 @@ if enable_plot
             acc_m = [acc_m,mag_acc(frame_start:frame_end)'];
         end
  
-        frame_length = size (emg, 1)
+        frame_length = size (emg, 1);
  
         for i=1:num_emg_signals
             ax = subplot(12,1,i,'Parent',p);
@@ -556,7 +562,7 @@ if enable_plot
  
     %% Hold
  
-    temp = hold
+    temp = hold;
  
     if size (temp, 1) > 0
         f = figure(1004);
@@ -571,18 +577,18 @@ if enable_plot
         acc_m = [];
  
         for num=1:size(temp,1)
-            time_start = temp{num,1} - offset;
-            time_end = temp{num,2} - offset;
+            time_start = temp(num,1) - offset;
+            time_end = temp(num,2) - offset;
             frame_start = round (time_start * Fsa);
             frame_end = round (time_end * Fsa);
  
-            g = []
+            g = [];
             for i=1:num_emg_signals
                 g = [g,filt_emg_signal_avg(frame_start:frame_end,i)];
             end
             emg = [emg;g];
  
-            g = []
+            g = [];
             for i=1:num_acc_signals_w
                 g = [g,base_acc_w(frame_start:frame_end,i)];
             end
@@ -591,7 +597,7 @@ if enable_plot
             acc_m = [acc_m,mag_acc(frame_start:frame_end)'];
         end
  
-        frame_length = size (emg, 1)
+        frame_length = size (emg, 1);
  
         for i=1:num_emg_signals
             ax = subplot(12,1,i,'Parent',p);
@@ -621,7 +627,7 @@ if enable_plot
  
     %% Grasp
  
-    temp = grasp
+    temp = grasp;
  
     if size (temp, 1) > 0
         f = figure(1005);
@@ -636,18 +642,18 @@ if enable_plot
         acc_m = [];
  
         for num=1:size(temp,1)
-            time_start = temp{num,1} - offset;
-            time_end = temp{num,2} - offset;
+            time_start = temp(num,1) - offset;
+            time_end = temp(num,2) - offset;
             frame_start = round (time_start * Fsa);
             frame_end = round (time_end * Fsa);
  
-            g = []
+            g = [];
             for i=1:num_emg_signals
                 g = [g,filt_emg_signal_avg(frame_start:frame_end,i)];
             end
             emg = [emg;g];
  
-            g = []
+            g = [];
             for i=1:num_acc_signals_w
                 g = [g,base_acc_w(frame_start:frame_end,i)];
             end
@@ -656,7 +662,7 @@ if enable_plot
             acc_m = [acc_m,mag_acc(frame_start:frame_end)'];
         end
  
-        frame_length = size (emg, 1)
+        frame_length = size (emg, 1);
  
         for i=1:num_emg_signals
             ax = subplot(12,1,i,'Parent',p);
@@ -686,7 +692,7 @@ if enable_plot
  
     %% Release Load
  
-    temp = release_load
+    temp = release_load;
  
     if size (temp, 1) > 0
         f = figure(1006);
@@ -701,18 +707,18 @@ if enable_plot
         acc_m = [];
  
         for num=1:size(temp,1)
-            time_start = temp{num,1} - offset;
-            time_end = temp{num,2} - offset;
+            time_start = temp(num,1) - offset;
+            time_end = temp(num,2) - offset;
             frame_start = round (time_start * Fsa);
             frame_end = round (time_end * Fsa);
  
-            g = []
+            g = [];
             for i=1:num_emg_signals
                 g = [g,filt_emg_signal_avg(frame_start:frame_end,i)];
             end
             emg = [emg;g];
  
-            g = []
+            g = [];
             for i=1:num_acc_signals_w
                 g = [g,base_acc_w(frame_start:frame_end,i)];
             end
@@ -721,7 +727,7 @@ if enable_plot
             acc_m = [acc_m,mag_acc(frame_start:frame_end)'];
         end
  
-        frame_length = size (emg, 1)
+        frame_length = size (emg, 1);
  
         for i=1:num_emg_signals
             ax = subplot(12,1,i,'Parent',p);
@@ -780,10 +786,10 @@ for j=1:length_acc_w
 end
 
 for num=1:length_therbligs
-    label = therbligs{num,3};
+    label = therbligs(num,3);
     
-    time_start = therbligs{num,1} - offset;
-    time_end = therbligs{num,2} - offset;
+    time_start = therbligs(num,1) - offset;
+    time_end = therbligs(num,2) - offset;
     frame_start = round (time_start * Fsa);
     frame_end = round (time_end * Fsa);
     frame_length = frame_end - frame_start + 1;
@@ -817,7 +823,6 @@ for num=1:length_therbligs
         
         X_data = [X_data, X];
         y_data = [y_data, y];
-        id = id + 1;
     end
 end
 
