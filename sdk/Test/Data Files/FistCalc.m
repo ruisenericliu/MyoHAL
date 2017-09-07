@@ -27,8 +27,9 @@ for i=1:num_emg_signals
     
 end
 
-max_emg = max(filt_emg_signal);
-
+for i=1:8
+max_emg(i) = max(filt_emg_signal(:,i));
+end
 %% Temporary plot to estimate beginning  fist times 
 % Weighting EMG values
 
@@ -49,10 +50,10 @@ end
 % Plot 
 
 y_max=127;
-T_e=round(2000/Fse);
+T_e=round(1500/Fse);
 figure(1);
-x_e=linspace(0,T_e,2000);
-plot(x_e,sum_EMG(1:2000,:));
+x_e=linspace(0,T_e,1500);
+plot(x_e,sum_EMG(1:1500,:));
 axis([0,T_e,0,y_max]);
 title('Weighted Average of EMG signals');
 ylabel('Unsigned 8 bit int');

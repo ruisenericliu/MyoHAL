@@ -1,19 +1,48 @@
 %% Load data
+clear;
 
-str_file1 = '0731EricHTherblig';
-str_file2 = '0731EricWTherblig';
+% Load subset of Eric's data;
 
-X_data1 = csvread(strcat(str_file1,'_X.csv'));
-y_data1 = csvread(strcat(str_file1,'_y.csv'));
+addPerson = false; % add Krittisak's data
+first=1;
+last=9;
 
-X_data2 = csvread(strcat(str_file2,'_X.csv'));
-y_data2 = csvread(strcat(str_file2,'_y.csv'));
+X_data=[];
+Y_data=[];
 
-X_data = [X_data1, X_data2];
-y_data = [y_data1, y_data2];
+for i=first:last
 
-%X_data = X_data2;
-%y_data = y_data2;
+    if i~=8 % 8 was the calibration dataset
+    
+    folder_name = strcat('08181/0818E',num2str(i));
+    str_file = strcat('0818E', num2str(i));
+
+    temp_X = csvread(strcat(folder_name,'/',str_file,'_X_full.csv'));
+    temp_Y = csvread(strcat(folder_name,'/',str_file,'_Y_full.csv'));
+
+    X_data = [X_data, temp_X];
+    Y_data = [Y_data, temp_Y];
+    end
+
+end
+
+if (addPerson)
+    for i=first:last
+
+        if i~=8 % 8 was the calibration dataset
+    
+        folder_name = strcat('08181/0818K',num2str(i));
+        str_file = strcat('0818K', num2str(i));
+
+        temp_X = csvread(strcat(folder_name,'/',str_file,'_X_full.csv'));
+        temp_Y = csvread(strcat(folder_name,'/',str_file,'_Y_full.csv'));
+
+        X_data = [X_data, temp_X];
+        Y_data = [Y_data, temp_Y];
+        end
+    end
+end
+
 
 
 %% Create Network
@@ -24,7 +53,7 @@ net = patternnet(9);
 
 %% Train
 
-net = train (net, X_data, y_data);
+net = train (net, X_data, Y_data);
 
 %% Predict the outputs
 
@@ -40,21 +69,22 @@ end
 
 %% Calculate the error rate
 
-plotconfusion (y_data, y_pred);
+figure(1);
+plotconfusion (Y_data, y_pred);
 
 
 %% Try a decision tree
 
 %% pack data 
 
-np = size(y_data,2);
+np = size(Y_data,2);
 
 X = X_data';
 
 Y = zeros(np,1);
 for i=1:np
-   for j=1:size(y_data,1)
-       if (y_data(j,i) == 1)
+   for j=1:size(Y_data,1)
+       if (Y_data(j,i) == 1)
           Y(i) = j; 
        end
    end
@@ -77,13 +107,10 @@ end
 % xlabel('Split Size');
 % ylabel('cross-validated error');
 
-% This yielded an optimal split value ~ 25
-
-
 %% 
 %Test tree
 
-ctree = fitctree(X,Y, 'MaxNumSplits', 10); % create classification tree
+ctree = fitctree(X,Y, 'MaxNumSplits', 20); % create classification tree
 
 %view(ctree,'mode','graph'); % graphic description
 
@@ -101,4 +128,53 @@ for i=1:np
 end
 
 Accuracy_tree = counter/np;
+
+
+%% Test training network/tree on a singular dataset 
+
+test = 1;
+folder_name = strcat('08181/0818E',num2str(test));
+str_file = strcat('0818E', num2str(test));
+
+temp_X = csvread(strcat(folder_name,'/',str_file,'_X_full.csv'));
+temp_Y = csvread(strcat(folder_name,'/',str_file,'_Y_full.csv'));
+
+X = temp_X';
+Y = temp_Y';
+
+
+
+y_p = predict(ctree, X)-1;
+
+figure(10);
+plot(y_p);
+
+% Show result with boxcar averaging
+
+length=size(y_p,1); 
+
+samples = 9; %10 samples has bias with rounding! 
+
+% Round down
+length_b = floor(length/samples);  
+y_pb = zeros(1, length_b);
+
+%Average every n samples 
+for i=1:length_b
+   y_pb(i) = round(mean(y_p(samples*(i-1)+1:samples*(i-1)+samples)));
+    
+end
+
+x_b = linspace(1, length_b, length_b);
+
+DC = sum(y_pb)/length_b;
+
+figure(11);
+plot(x_b,y_pb);
+title('Decision Tree results after boxcar averaging')
+xlabel('time (s)');
+ylabel('Exertion boolean');
+
+%% HAL Equation - for future use
+% HAL = 6.56*log(D)*(F^1.31/(1+ 3.18*F^1.31))
 

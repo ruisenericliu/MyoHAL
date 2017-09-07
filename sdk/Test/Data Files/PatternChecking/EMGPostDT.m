@@ -86,7 +86,7 @@ for i=1:length_b
     
 end
 
-x_b = linspace(1, length_b/(200/samples), length_b);
+x_b = linspace(1, length_b/(50/samples), length_b);
 
 figure;
 plot(x_b, y_pb);

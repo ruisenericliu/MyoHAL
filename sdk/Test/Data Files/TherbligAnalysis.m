@@ -1,8 +1,11 @@
 %% Label files
- 
-fileID = fopen('07312/0731KrittisakWTherblig.txt','r');
 
-%fileID = fopen('07313/0731EricHTherblig.txt','r');
+test = 4;
+folder_name = strcat('08181/0818E',num2str(test));
+str_file = strcat('0818E', num2str(test)); 
+
+fileID = fopen(strcat(folder_name,'/',str_file,'.txt'),'r');
+
 
 %% Read labels from video
  

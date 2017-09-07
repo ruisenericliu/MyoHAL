@@ -1,45 +1,34 @@
-%% Preprocessing.m 
+%% Writing.m 
+% Used to generate labeled csv files for classification, depending
+% on the goal classification.
+% Draws upon EMG/Therblig annotation files to classify data.
 
-fileChoice = 2; 
-options = 1; % 1 for 6 outputs; 
-             % 2 for 4 outputs; 
-             % 3 for 4 outputs with merging
+clear;
+%% 
+options = 4; % 1 for 6 output therbligs
+             % 2 for 4 outputs therbligs (no grasp/release load included)
+             % 3 for 4 outputs with merging (grasp and release relabeld)
              % 4 for exertion/non exertion
-            
-% Option 3 is not true
+
+% interval of identification
 subinterval_time = 0.2;
- 
+preRound=false; % decide if we're rounding data based on sub-interval windows 
+
 %% offset estimate between video and Myo
-
-if (fileChoice == 1)
+       
+    sFPS = 30;
+    vid_mark = [148, 187, 236]/ sFPS;
+    guess_mark = [2.261, 3.577, 5.443];
+    offset = mean(vid_mark - guess_mark); % estimate the offset
+    max_emg = 80.4; % calibration emg value 
+    max_emg = max_emg*1.1; % multiply to ensure safety margin
     
-    vid_mark = [294/20, 331/20, 368/20];
-    guess_mark = [2.156, 3.937, 5.883];
-    offset = mean(vid_mark - guess_mark); % Myo is ~ 4.7s delayed.
- 
-    folder_name = '07313';
-    str_file = '0731EricHTherblig';
-    str_acc_w = 'worldAccelH';
-    str_emg = 'emgH';
+    folder_name = '08181/0818K2';
+    str_file = '0818K2';
+    str_acc_w = 'accel';
+    str_emg = 'emg';
 
-elseif (fileChoice == 2) 
-   
-    vid_mark = [214/17, 241/17, 271/17];
-    guess_mark = [1.811,3.357, 5.338  ];
-    offset = mean(vid_mark - guess_mark);
-    folder_name = '07313';
-    str_file = '0731EricWTherblig';
-    str_acc_w = 'worldAccelW';
-    str_emg = 'emgW';
-    
-end
 
-%% Close figures
- 
-fh=findall(0,'type','figure');
-for i=1:length(fh)
-     clo(fh(i));
-end
 
 %% Label files
 
@@ -49,11 +38,12 @@ fileID = fopen(strcat(folder_name, '/',str_file,'.txt'),'r');
  
 base_acc_w = csvread(strcat(folder_name, '/',str_acc_w,'.csv'));
 
+% sample frequency 
 Fsa = 50;
 length_acc_w = size(base_acc_w,1);
 num_acc_signals_w = size(base_acc_w,2);
 
-% base_acc_w(:,3) = base_acc_w(:,3) - 9.8;
+% mean subtraction
 for i=1:num_acc_signals_w
     mu = mean (base_acc_w (:,i));
     for j=1:length_acc_w
@@ -79,7 +69,7 @@ Fse = 200;
  
 % %% Butterworth low-pass filter for EMG signal
 order_e=4;
-wn_e=10/(Fse/2);
+wn_e=10/(Fse/2); % Filter at 10 Hz 
 [b_e,a_e]=butter(order_e, wn_e, 'low');
  
 % Filtering all 8 EMG signals
@@ -88,7 +78,7 @@ for i=1:num_emg_signals
     filt_emg_signal(:,i)=filter(b_e,a_e,rect_signal(:,i)); 
 end
  
-y_max_e = zeros(num_emg_signals, 1);
+% y_max_e = zeros(num_emg_signals, 1);
  
 %% Convert EMG signals from 200 Hz to 50 Hz
 length_emg_avg = round (length_emg / 4);
@@ -105,14 +95,15 @@ for i=1:num_emg_signals
         end
         filt_emg_signal_avg(j,i) = sum/cnt;
         
-        if j >= 500 && filt_emg_signal_avg(j,i) > y_max_e(i)
-            y_max_e(i) = filt_emg_signal_avg(j,i);
-        end
+        %% What is this?
+%         if j >= 500 && filt_emg_signal_avg(j,i) > y_max_e(i)
+%             y_max_e(i) = filt_emg_signal_avg(j,i);
+%         end
     end
 end
  
  
-% sum the magnitude 
+%% Obtain acceleration magnitude
  
 temp = base_acc_w;
 mag_acc = zeros(length_acc_w, 1);
@@ -191,6 +182,7 @@ while ischar(temp)
         
     end
     
+    % some convoluted logic to get the therblig lables
     if (name <= 4) | ((options == 1) & (name <= 6))
         therbligs(counter, 1) = start_time;
         therbligs(counter, 2) = end_time;
@@ -212,31 +204,69 @@ id = 1;
 
 % Normalized
 for i=1:num_emg_signals
-    mx = max (filt_emg_signal_avg(:,i));
     for j=1:length_emg_avg
-        filt_emg_signal_avg(j,i) = filt_emg_signal_avg(j,i) / mx;
+        filt_emg_signal_avg(j,i) = filt_emg_signal_avg(j,i) / max_emg;
     end
-end
-for i=1:num_acc_signals_w
-    mx = max (base_acc_w(:,i));
-    for j=1:length_acc_w
-        base_acc_w(j,i) = base_acc_w(j,i) / mx;
-    end
-end
-mx = max (mag_acc(:));
-for j=1:length_acc_w
-    mag_acc(j) = mag_acc(j) / mx;
 end
 
-for num=1:length_therbligs
+% normalizing acceleration based on maximum acceleration in signal?
+% for i=1:num_acc_signals_w
+%     mx = max (base_acc_w(:,i));
+%     for j=1:length_acc_w
+%         base_acc_w(j,i) = base_acc_w(j,i) / mx;
+%     end
+% end
+
+% normalizing magnitude of acceleration by maximum magnitude?? 
+% mx = max (mag_acc(:));
+% for j=1:length_acc_w
+%     mag_acc(j) = mag_acc(j) / mx;
+% end
+
+% 1st therblig is always (0,0)
+for num=2:length_therbligs
     label = therbligs(num,3);
     
     time_start = therbligs(num,1) - offset;
     time_end = therbligs(num,2) - offset;
     frame_start = round (time_start * Fsa);
     frame_end = round (time_end * Fsa);
-    frame_length = frame_end - frame_start + 1;
+    %frame_length = frame_end - frame_start + 1;
     
+    
+if ~preRound
+    for i=frame_start:frame_end
+        X = zeros(num_emg_signals+num_acc_signals_w + 1,1);
+        for j=1:num_emg_signals
+            X(j) = filt_emg_signal_avg(i,j);
+        end
+        
+        for j=1:num_acc_signals_w
+            X(j+num_emg_signals) = base_acc_w(i,j);
+        end
+        
+        X(1+num_emg_signals+num_acc_signals_w) = mag_acc(i);
+        
+        if (options ==2 || options == 3)
+            y = zeros (4, 1);
+        elseif (options == 4) 
+            y = zeros (2, 1);
+        else
+            y = zeros(6,1);
+        end
+        
+        % Set the correct class to 1 
+        y (label) = 1;
+        
+        X_data = [X_data, X];
+        y_data = [y_data, y];
+        
+    end
+else
+    
+    %% identify full subintervals where the data represents
+    %  1 therblig only 
+
     for st=frame_start:subinterval_frame:(frame_end-subinterval_frame+1)
         ed = st + subinterval_frame - 1;
 
@@ -251,6 +281,7 @@ for num=1:length_therbligs
             X = [X; mu];
 %             X = [X; base_acc_w(st:ed,i)];
         end
+        
         mu = mean (mag_acc(st:ed));
         X = [X; mu];
 %         X = [X; mag_acc(st:ed)];
@@ -262,14 +293,23 @@ for num=1:length_therbligs
         else
             y = zeros(6,1);
         end
+        
+        % Set the correct class to 1 
         y (label) = 1;
         
         X_data = [X_data, X];
         y_data = [y_data, y];
     end
 end
+end
 
 %% Save data as csv file
 
-csvwrite(strcat(str_file,'_X.csv'), X_data);
-csvwrite(strcat(str_file,'_y.csv'), y_data);
+if (preRound)
+    csvwrite(strcat(folder_name,'/',str_file,'_X.csv'), X_data);
+    csvwrite(strcat(folder_name,'/',str_file,'_y.csv'), y_data);
+else
+    csvwrite(strcat(folder_name,'/',str_file,'_X_full.csv'), X_data);
+    csvwrite(strcat(folder_name,'/',str_file,'_y_full.csv'), y_data);
+end
+    
