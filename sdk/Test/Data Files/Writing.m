@@ -17,14 +17,14 @@ preRound=false; % decide if we're rounding data based on sub-interval windows
 %% offset estimate between video and Myo
        
     sFPS = 30;
-    vid_mark = [148, 187, 236]/ sFPS;
-    guess_mark = [2.261, 3.577, 5.443];
+    vid_mark = [111, 152, 207]/ sFPS;
+    guess_mark = [2.416, 3.987, 5.753];
     offset = mean(vid_mark - guess_mark); % estimate the offset
     max_emg = 80.4; % calibration emg value 
     max_emg = max_emg*1.1; % multiply to ensure safety margin
     
-    folder_name = '08181/0818K2';
-    str_file = '0818K2';
+    folder_name = '08181/0818K1';
+    str_file = '0818K1';
     str_acc_w = 'accel';
     str_emg = 'emg';
 

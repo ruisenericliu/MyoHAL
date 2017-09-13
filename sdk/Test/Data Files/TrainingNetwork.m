@@ -3,26 +3,26 @@ clear;
 
 % Load subset of Eric's data;
 
-addPerson = false; % add Krittisak's data
+addPerson = true; % add Krittisak's data
 first=1;
-last=9;
+last=3;
 
 X_data=[];
 Y_data=[];
 
 for i=first:last
 
-    if i~=8 % 8 was the calibration dataset
-    
-    folder_name = strcat('08181/0818E',num2str(i));
-    str_file = strcat('0818E', num2str(i));
-
-    temp_X = csvread(strcat(folder_name,'/',str_file,'_X_full.csv'));
-    temp_Y = csvread(strcat(folder_name,'/',str_file,'_Y_full.csv'));
-
-    X_data = [X_data, temp_X];
-    Y_data = [Y_data, temp_Y];
-    end
+%     if i~=8 % 8 was the calibration dataset
+%     
+%     folder_name = strcat('08181/0818E',num2str(i));
+%     str_file = strcat('0818E', num2str(i));
+% 
+%     temp_X = csvread(strcat(folder_name,'/',str_file,'_X_full.csv'));
+%     temp_Y = csvread(strcat(folder_name,'/',str_file,'_Y_full.csv'));
+% 
+%     X_data = [X_data, temp_X];
+%     Y_data = [Y_data, temp_Y];
+%     end
 
 end
 
@@ -31,8 +31,8 @@ if (addPerson)
 
         if i~=8 % 8 was the calibration dataset
     
-        folder_name = strcat('08181/0818K',num2str(i));
-        str_file = strcat('0818K', num2str(i));
+        folder_name = strcat('08181/0818E',num2str(i));
+        str_file = strcat('0818E', num2str(i));
 
         temp_X = csvread(strcat(folder_name,'/',str_file,'_X_full.csv'));
         temp_Y = csvread(strcat(folder_name,'/',str_file,'_Y_full.csv'));

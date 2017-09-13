@@ -1,8 +1,8 @@
 %% Label files
 
-test = 4;
-folder_name = strcat('08181/0818E',num2str(test));
-str_file = strcat('0818E', num2str(test)); 
+test = 1;
+folder_name = strcat('08181/0818K',num2str(test));
+str_file = strcat('0818K', num2str(test)); 
 
 fileID = fopen(strcat(folder_name,'/',str_file,'.txt'),'r');
 
