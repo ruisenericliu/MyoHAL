@@ -10,7 +10,6 @@
 #include<fstream>
 #include <array>
 
-
 // Stuff for Kalman filters
 #include <vector>
 #include <Eigen/Dense>
@@ -210,10 +209,17 @@ public:
         onArm = false;
     }
 
+
+  /*
+   **************************************************** 
+  */
+  
+
     // onUnlock() is called whenever Myo has become unlocked, and will start delivering pose events.
     void onUnlock(myo::Myo* myo, uint64_t timestamp)
     {
-        isUnlocked = true;
+      isUnlocked = true;
+      // test to see if pose events are neutralized 
     }
 
     // onLock() is called whenever Myo has become locked. No pose events will be sent until the Myo is unlocked again.
@@ -225,27 +231,6 @@ public:
     // There are other virtual functions in DeviceListener that we could override here, like onAccelerometerData().
     // For this example, the functions overridden above are sufficient.
 
-  void testPrint(){
-
-
-    std::cout << "roll: " << roll_w << std::endl;
-    std::cout << "pitch: " << pitch_w << std::endl;
-    std::cout << "yaw: " << yaw_w << std::endl;
-
-    //std::cout << "quat x: " << orientation.x() << std::endl;
-    //std::cout << "quat y: " << orientation.y() << std::endl;
-    //std::cout << "quat z: " << orientation.z() << std::endl;
-    //std::cout << "quat w: " << orientation.w() << std::endl;
-
-    //std::cout << "rawAccel x: " << GRAVITY*rawAccel.x() << std::endl;
-    //std::cout << "rawAccel y: " << GRAVITY*rawAccel.y() << std::endl;
-    //std::cout << "rawAccel z: " << GRAVITY*rawAccel.z() << std::endl;
-
-    //std::cout << "Accelx: " << Accel.x() << std::endl;
-    //std::cout << "Accely: " << Accel.y() << std::endl;
-    //std::cout << "Accelz: " << Accel.z() << std::endl;
-    
-  }
 
 
     // We define this function to print the current values that were updated by the on...() functions above.
@@ -306,8 +291,6 @@ public:
 };
 
 
-
-
 int main(int argc, char** argv)
 {
     // catch exceptions
@@ -342,92 +325,60 @@ int main(int argc, char** argv)
     myo->setStreamEmg(myo::Myo::streamEmgEnabled);
 
 
-    std::cout << "Collecting EMG and Acceleration Data!" << std::endl;
+
+
+    // Now check arguments before collecting data
+
+    if ( argc != 2 ){ // argc should be 2 for correct execution
+    // We print argv[0] assuming it is the program name
+      std::cout<< "usage: "<< argv[0] <<" <foldername>\n";
+    } else {
+       const std::string foldername = argv[1];
+       
+       std::string path = foldername + '/';
+       std::string EMGPath = path + EMGFile;
+       std::string accelPath = path + accelFile;
+       std::string rotAccelPath = path + rotAccelFile;
+       std::string gyroPath = path + gyroFile;
+       std::string quatPath = path + quatFile;
+       
+       std::cout << "Collecting EMG and Acceleration Data!" << std::endl;
     
-    emgOutFile.open(EMGFile);
-    accelOutFile.open(accelFile);
-    rotAccelOutFile.open(rotAccelFile);
-    gyroOutFile.open(gyroFile);
-    quatOutFile.open(quatFile);
+       emgOutFile.open(EMGPath);
+       accelOutFile.open(accelPath);
+       rotAccelOutFile.open(rotAccelPath);
+       gyroOutFile.open(gyroPath);
+       quatOutFile.open(quatPath);
 
+       int seconds = 60;
+       hub.run(seconds*1000); // run for n milliseconds - this timing is accurate
+       // for some reason, for short windows, EMG data is undersampled, but not IMU data is not
 
-    int seconds = 60;
-    hub.run(seconds*1000); // run for n milliseconds - this timing is accurate
-    // for some reason, for short windows, EMG data is undersampled, but not IMU data is not
-
-    // The following method accumulatees delay for long periods of run time
-    // something to keep in mind for the future
-    // for example, expected: 60 seconds, result: 62.4 seconds 
-    /*
-    float dt = 1.0/50; // update 50 times a second
-    float hub_t = 1000*dt; // convert to milliseconds
-    int i = 0;
-    while (i < 3000) {  //look at dt for update rate
-      hub.run(hub_t);
-      i++;
-    }
-    */
+       // The following method accumulatees delay for long periods of run time
+       // something to keep in mind for the future
+       // for example, expected: 60 seconds, result: 62.4 seconds 
+       /*
+	 float dt = 1.0/50; // update 50 times a second
+	 float hub_t = 1000*dt; // convert to milliseconds
+	 int i = 0;
+	 while (i < 3000) {  //look at dt for update rate
+	 hub.run(hub_t);
+	 i++;
+	 }
+       */
        
     
-    emgOutFile.close();
-    accelOutFile.close();
-    rotAccelOutFile.close();
-    gyroOutFile.close();
-    quatOutFile.close();
+       emgOutFile.close();
+       accelOutFile.close();
+       rotAccelOutFile.close();
+       gyroOutFile.close();
+       quatOutFile.close();
 
+       std::cout << counter << std::endl;
 
-    std::cout << counter << std::endl;
-
-    std::cout << "Finished!" << std::endl;
-
-    
-
-    // test calibration
-    /*
-    while (i < 1) {
-      i++;
-      hub.run(hub_t); // update 20 times a second
-      collector.testPrint();
-      collector.calibrate();
+       std::cout << "Finished!" << std::endl;
 
     }
-
-    std::cout << " we are now calibrated!: \n \n " << std::endl;
-
-    */
-
-    
-    // Collect test data for stationary 
-
-    /*
-    accelOutFile.open(accelFile);
-    emgOutFile.open(EMGFile);
-    quatOutFile.open(quatFile);
-    rollOutFile.open(rollFile);
-
-    int i = 0;
-    while (i < 20) {
-      i++;
-      hub.run(hub_t); // update 20 times a second
-       collector.writePosData();
-    }
-    accelOutFile.close();
-    quatOutFile.close();
-    rollOutFile.close();
-
-    */
-
-    
-    /*
-    i = 0;
-     while (i < 10) {
-      i++;
-      hub.run(hub_t); // update 20 times a second
-      //collector.print();
-      collector.testPrint();
-    }
-    */
-    
 
 
     // If a standard exception occurred, we print out its message and exit.
